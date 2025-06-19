@@ -1,6 +1,6 @@
 package com.Lino.bitcoinMining.utils;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinMining.BitcoinMining;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;

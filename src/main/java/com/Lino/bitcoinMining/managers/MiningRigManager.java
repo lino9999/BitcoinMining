@@ -1,7 +1,7 @@
 package com.Lino.bitcoinMining.managers;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
-import com.yourserver.bitcoinmining.models.MiningRig;
+import com.Lino.bitcoinMining.BitcoinMining;
+import com.Lino.bitcoinMining.models.MiningRig;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

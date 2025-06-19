@@ -2,7 +2,7 @@ package com.Lino.bitcoinMining.api;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.yourserver.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinMining.BitcoinMining;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;

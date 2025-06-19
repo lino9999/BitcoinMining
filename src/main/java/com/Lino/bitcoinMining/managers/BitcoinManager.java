@@ -1,6 +1,6 @@
 package com.Lino.bitcoinMining.managers;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinMining.BitcoinMining;
 import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;

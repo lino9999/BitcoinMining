@@ -1,7 +1,7 @@
 package com.Lino.bitcoinMining.tasks;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
-import com.yourserver.bitcoinmining.models.MiningRig;
+import com.Lino.bitcoinMining.BitcoinMining;
+import com.Lino.bitcoinMining.models.MiningRig;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.scheduler.BukkitRunnable;

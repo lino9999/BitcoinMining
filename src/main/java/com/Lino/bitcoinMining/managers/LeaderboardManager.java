@@ -1,6 +1,6 @@
 package com.Lino.bitcoinMining.managers;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinMining.BitcoinMining;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import java.text.DecimalFormat;

@@ -1,6 +1,6 @@
 package com.Lino.bitcoinMining.commands;
 
-import com.Lino.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinMining.BitcoinMining;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

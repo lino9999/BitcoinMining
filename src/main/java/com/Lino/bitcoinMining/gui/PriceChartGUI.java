@@ -1,8 +1,8 @@
 package com.Lino.bitcoinMining.gui;
 
-import com.Lino.bitcoinmining.BitcoinMining;
-import com.Lino.bitcoinmining.api.PriceManager;
-import com.Lino.bitcoinmining.utils.ItemBuilder;
+import com.Lino.bitcoinMining.BitcoinMining;
+import com.Lino.bitcoinMining.api.PriceManager;
+import com.Lino.bitcoinMining.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

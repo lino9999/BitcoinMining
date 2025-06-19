@@ -1,8 +1,8 @@
 package com.Lino.bitcoinMining.listeners;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
-import com.yourserver.bitcoinmining.gui.MiningRigGUI;
-import com.yourserver.bitcoinmining.models.MiningRig;
+import com.Lino.bitcoinMining.BitcoinMining;
+import com.Lino.bitcoinMining.gui.MiningRigGUI;
+import com.Lino.bitcoinMining.models.MiningRig;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;

@@ -1,6 +1,6 @@
 package com.Lino.bitcoinMining.tasks;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinMining.BitcoinMining;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class PriceUpdateTask extends BukkitRunnable {
