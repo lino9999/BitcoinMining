@@ -1,10 +1,10 @@
 package com.Lino.bitcoinMining.listeners;
 
-import com.yourserver.bitcoinmining.BitcoinMining;
-import com.yourserver.bitcoinmining.gui.FuelGUI;
-import com.yourserver.bitcoinmining.gui.MiningRigGUI;
-import com.yourserver.bitcoinmining.gui.PriceChartGUI;
-import com.yourserver.bitcoinmining.models.MiningRig;
+import com.Lino.bitcoinmining.BitcoinMining;
+import com.Lino.bitcoinmining.gui.FuelGUI;
+import com.Lino.bitcoinmining.gui.MiningRigGUI;
+import com.Lino.bitcoinmining.gui.PriceChartGUI;
+import com.Lino.bitcoinmining.models.MiningRig;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
