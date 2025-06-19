@@ -1,0 +1,73 @@
+# BitcoinMining Messages Configuration
+# Use %player% for player name, %amount% for amounts, etc.
+
+prefix: "&6[BitcoinMining] &7"
+
+# General Messages
+no-permission: "You don't have permission to do that!"
+player-not-found: "Player %player% not found!"
+invalid-amount: "Invalid amount! Please enter a valid number."
+not-enough-bitcoin: "You don't have enough Bitcoin!"
+not-enough-money: "You don't have enough money!"
+
+# Mining Rig Messages
+rig-placed: "Mining rig placed successfully!"
+rig-broken: "Mining rig removed!"
+rig-not-owner: "You don't own this mining rig!"
+rig-limit-reached: "You have reached the maximum number of mining rigs (%limit%)!"
+fuel-added: "Added %amount% fuel to the rig. Total fuel: %total%"
+fuel-tank-full: "The fuel tank is already full!"
+rig-upgraded: "Mining rig upgraded to %tier%!"
+rig-upgrade-max-level: "This rig is already at maximum level!"
+rig-upgrade-not-enough-btc: "You need %cost% BTC to upgrade this rig!"
+
+# Bitcoin Messages
+balance-check: "Your Bitcoin balance: &e%balance% BTC"
+balance-check-other: "%player%'s Bitcoin balance: &e%balance% BTC"
+bitcoin-received: "You received &e%amount% BTC&7 from %player%!"
+bitcoin-sent: "You sent &e%amount% BTC&7 to %player%! (Fee: %fee% BTC)"
+transfer-success: "Transfer successful!"
+transfer-failed: "Transfer failed! Check your balance."
+convert-to-money: "Converted &e%btc% BTC&7 to &a$%money%"
+convert-from-money: "Converted &a$%money%&7 to &e%btc% BTC"
+
+# Leaderboard Messages
+leaderboard-header: "&6&l===== Bitcoin Top Miners ====="
+leaderboard-entry: "&e#%position% &7%player%: &e%amount% BTC"
+leaderboard-footer: "&6&l=========================="
+
+# GUI Messages
+gui-close: "GUI closed!"
+gui-toggle-rig: "Mining rig %status%!"
+gui-overclock-increased: "Overclock increased to %percent%%!"
+gui-overclock-decreased: "Overclock decreased to %percent%%!"
+gui-overclock-max: "Overclock is already at maximum!"
+gui-overclock-min: "Overclock is already at minimum!"
+
+# Command Messages
+usage-bitcoin: "Usage: /bitcoin [balance|send|convert]"
+usage-transfer: "Usage: /btctransfer <player> <amount>"
+usage-convert: "Usage: /btcconvert <to|from> <amount>"
+usage-miner: "Usage: /miner [info|list]"
+
+# Status Messages
+rig-status-active: "&aActive"
+rig-status-inactive: "&cInactive"
+rig-status-no-fuel: "&cNo Fuel"
+
+# Info Messages
+miner-info-header: "&6&l===== Your Mining Rigs ====="
+miner-info-entry: |
+  &eRig #%number%:
+  &7  Type: &e%type%
+  &7  Status: %status%
+  &7  Fuel: &e%fuel%/%max_fuel%
+  &7  Hash Rate: &e%hashrate% BTC/hour
+  &7  Location: &e%world% %x%, %y%, %z%
+miner-info-footer: "&7Total Rigs: &e%total%/%max%"
+miner-info-none: "You don't have any mining rigs!"
+
+# Error Messages
+error-world-not-loaded: "Error: World not loaded!"
+error-database: "Database error occurred! Please contact an administrator."
+error-api-fetch: "Failed to fetch Bitcoin price! Using cached value."

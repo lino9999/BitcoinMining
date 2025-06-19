@@ -1,0 +1,70 @@
+name: BitcoinMining
+version: '1.0'
+main: com.Lino.bitcoinMining.BitcoinMining
+api-version: '1.21'
+author: Lino
+depend: [Vault]
+
+
+
+description: Bitcoin mining simulation plugin for Spigot
+depend: [Vault]
+commands:
+bitcoin:
+description: Main Bitcoin command
+aliases: [btc]
+usage: /<command> [balance|send|convert]
+permission: bitcoinmining.use
+btctransfer:
+description: Transfer Bitcoin to another player
+usage: /<command> <player> <amount>
+permission: bitcoinmining.transfer
+btcconvert:
+description: Convert between Bitcoin and server money
+usage: /<command> <to|from> <amount>
+permission: bitcoinmining.convert
+miner:
+description: Mining rig management command
+usage: /<command> [info|list]
+permission: bitcoinmining.miner
+btctop:
+description: Show top Bitcoin miners
+aliases: [btcleaderboard]
+permission: bitcoinmining.leaderboard
+permissions:
+bitcoinmining.*:
+description: Access to all BitcoinMining features
+default: op
+children:
+bitcoinmining.use: true
+bitcoinmining.place: true
+bitcoinmining.break: true
+bitcoinmining.transfer: true
+bitcoinmining.convert: true
+bitcoinmining.miner: true
+bitcoinmining.leaderboard: true
+bitcoinmining.admin: true
+bitcoinmining.use:
+description: Basic Bitcoin commands
+default: true
+bitcoinmining.place:
+description: Place mining rigs
+default: true
+bitcoinmining.break:
+description: Break mining rigs
+default: true
+bitcoinmining.transfer:
+description: Transfer Bitcoin to other players
+default: true
+bitcoinmining.convert:
+description: Convert between Bitcoin and server money
+default: true
+bitcoinmining.miner:
+description: Access miner commands
+default: true
+bitcoinmining.leaderboard:
+description: View Bitcoin leaderboard
+default: true
+bitcoinmining.admin:
+description: Admin permissions
+default: op

@@ -1,0 +1,39 @@
+# BitcoinMining Configuration
+
+# Mining Settings
+mining-difficulty: 1.0
+max-rigs-per-player: 5
+
+# Bitcoin Transfer Settings
+transfer-fee: 0.01
+min-transfer-amount: 0.00000001
+
+# Conversion Settings
+conversion-enabled: true
+min-conversion-amount: 0.00000001
+
+# Price Update Settings
+price-update-interval: 60
+price-api-timeout: 5
+
+# Leaderboard Settings
+leaderboard-size: 10
+leaderboard-update-interval: 300
+
+# Database Settings
+database-save-interval: 300
+
+# Daily Reset Settings
+reset-daily-profits: true
+reset-time: "00:00"
+
+# Particle Effects
+enable-particles: true
+particle-chance: 0.1
+
+# Sound Effects
+enable-sounds: true
+sound-chance: 0.05
+
+# Debug Mode
+debug: false
