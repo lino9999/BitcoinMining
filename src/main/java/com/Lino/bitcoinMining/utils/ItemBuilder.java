@@ -71,7 +71,7 @@ public class ItemBuilder {
 
     public ItemBuilder setGlowing(boolean glowing) {
         if (glowing) {
-            addEnchantment(Enchantment.DURABILITY, 1);
+            addEnchantment(Enchantment.FORTUNE, 1);
             addItemFlag(ItemFlag.HIDE_ENCHANTS);
         }
         return this;

@@ -45,7 +45,7 @@ public class MiningTask extends BukkitRunnable {
 
             if (Math.random() < 0.1) {
                 rig.getLocation().getWorld().spawnParticle(
-                        Particle.VILLAGER_HAPPY,
+                        Particle.ENCHANT,
                         rig.getLocation().clone().add(0.5, 1.5, 0.5),
                         5, 0.3, 0.3, 0.3, 0.02
                 );
