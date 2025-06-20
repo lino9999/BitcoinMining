@@ -79,7 +79,6 @@ public class BitcoinMining extends JavaPlugin {
         getCommand("miner").setExecutor(new MinerCommand(this));
         getCommand("btctop").setExecutor(new LeaderboardCommand(this));
         getCommand("btctransfer").setExecutor(new TransferCommand(this));
-        getCommand("btcconvert").setExecutor(new ConvertCommand(this));
         getCommand("blackmarket").setExecutor(new BlackMarketCommand(this));
         getCommand("getrig").setExecutor(new GetRigCommand(this));
     }

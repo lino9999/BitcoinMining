@@ -26,6 +26,7 @@ public class MiningTask extends BukkitRunnable {
             }
         }
 
+        // Save all rigs every minute
         if (System.currentTimeMillis() - lastSaveTime > 60000) {
             plugin.getMiningRigManager().saveAllRigs();
             lastSaveTime = System.currentTimeMillis();
@@ -33,17 +34,21 @@ public class MiningTask extends BukkitRunnable {
     }
 
     private void processRig(MiningRig rig) {
-        double fuelConsumption = rig.getEffectiveFuelConsumption() / 3600;
+        // Fixed: Fuel consumption per second (task runs every second)
+        // Fuel consumption is per hour, so divide by 3600 for per second rate
+        double fuelConsumptionPerSecond = rig.getEffectiveFuelConsumption() / 3600.0;
 
-        if (rig.consumeFuel(fuelConsumption)) {
+        if (rig.consumeFuel(fuelConsumptionPerSecond)) {
             double miningDifficulty = plugin.getConfig().getDouble("mining-difficulty", 1.0);
-            double bitcoinMined = (rig.getEffectiveHashRate() / 3600) / miningDifficulty;
+            // Bitcoin mined per second (hash rate is per hour)
+            double bitcoinMinedPerSecond = (rig.getEffectiveHashRate() / 3600.0) / miningDifficulty;
 
-            rig.addMinedBitcoin(bitcoinMined);
-            plugin.getBitcoinManager().addBitcoin(rig.getOwnerId(), bitcoinMined);
-            plugin.getDatabaseManager().updateTotalMined(rig.getOwnerId(), bitcoinMined);
+            rig.addMinedBitcoin(bitcoinMinedPerSecond);
+            plugin.getBitcoinManager().addBitcoin(rig.getOwnerId(), bitcoinMinedPerSecond);
+            plugin.getDatabaseManager().updateTotalMined(rig.getOwnerId(), bitcoinMinedPerSecond);
 
-            if (Math.random() < 0.1) {
+            // Visual effects (reduced frequency)
+            if (Math.random() < 0.05) { // 5% chance per second
                 rig.getLocation().getWorld().spawnParticle(
                         Particle.FLAME,
                         rig.getLocation().clone().add(0.5, 1.5, 0.5),
@@ -51,7 +56,8 @@ public class MiningTask extends BukkitRunnable {
                 );
             }
 
-            if (Math.random() < 0.05) {
+            // Sound effects (reduced frequency)
+            if (Math.random() < 0.02) { // 2% chance per second
                 rig.getLocation().getWorld().playSound(
                         rig.getLocation(),
                         Sound.BLOCK_STONE_BREAK,

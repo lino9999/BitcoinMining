@@ -25,11 +25,19 @@ public class TopMinersGUI {
     public void open(Player player) {
         Inventory gui = Bukkit.createInventory(null, 54, "§6§l⛏ Top Miners ⛏");
 
-        fillBorders(gui);
+        // Fill background with black glass panes
+        ItemStack background = new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE)
+                .setName("§7")
+                .build();
+
+        for (int i = 0; i < 54; i++) {
+            gui.setItem(i, background);
+        }
 
         Map<UUID, Double> topMiners = plugin.getLeaderboardManager().getLeaderboard();
 
-        int[] slots = {4, 12, 14, 19, 21, 23, 25, 28, 30, 32, 34};
+        // Updated slots for better layout without gold borders
+        int[] slots = {13, 21, 23, 29, 30, 31, 32, 33, 39, 41};
         int position = 1;
 
         for (Map.Entry<UUID, Double> entry : topMiners.entrySet()) {
@@ -47,28 +55,13 @@ public class TopMinersGUI {
 
         int playerRank = plugin.getLeaderboardManager().getPlayerRank(player.getUniqueId());
         if (playerRank > 0) {
-            double playerAmount = plugin.getBitcoinManager().getBalance(player.getUniqueId());
+            double playerAmount = plugin.getDatabaseManager().getTopMiners(Integer.MAX_VALUE).getOrDefault(player.getUniqueId(), 0.0);
             gui.setItem(49, createOwnRankItem(player, playerRank, playerAmount));
         }
 
         gui.setItem(45, createBackItem());
 
         player.openInventory(gui);
-    }
-
-    private void fillBorders(Inventory gui) {
-        ItemStack border = new ItemBuilder(Material.GOLD_BLOCK)
-                .setName("§7")
-                .build();
-
-        for (int i = 0; i < 9; i++) {
-            gui.setItem(i, border);
-            gui.setItem(45 + i, border);
-        }
-        for (int i = 9; i < 36; i += 9) {
-            gui.setItem(i, border);
-            gui.setItem(i + 8, border);
-        }
     }
 
     private ItemStack createPlayerHead(OfflinePlayer player, int position, double amount) {

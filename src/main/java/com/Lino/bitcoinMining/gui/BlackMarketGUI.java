@@ -87,10 +87,19 @@ public class BlackMarketGUI {
 
         lore.add("§7");
         lore.add("§7Price: §e" + df.format(marketItem.getPrice()) + " BTC");
-        lore.add("§7Stock: " + (stock > 0 ? "§a" + stock + "/" + marketItem.getMaxStock() : "§c§lOUT OF STOCK"));
+
+        // Check if stock is unlimited (-1)
+        if (stock == -1) {
+            lore.add("§7Stock: §a§lUNLIMITED");
+        } else if (stock > 0) {
+            lore.add("§7Stock: §a" + stock + "/" + marketItem.getMaxStock());
+        } else {
+            lore.add("§7Stock: §c§lOUT OF STOCK");
+        }
+
         lore.add("§7");
 
-        if (stock > 0) {
+        if (stock != 0) { // Available if stock is not 0 (includes -1 for unlimited)
             lore.add("§e§lCLICK§7 to purchase");
         } else {
             lore.add("§c§lNOT AVAILABLE");

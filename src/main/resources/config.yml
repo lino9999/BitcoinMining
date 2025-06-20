@@ -8,10 +8,6 @@ max-rigs-per-player: 5
 transfer-fee: 0.01
 min-transfer-amount: 0.00000001
 
-# Conversion Settings
-conversion-enabled: true
-min-conversion-amount: 0.00000001
-
 # Price Update Settings
 price-update-interval: 60
 price-api-timeout: 5
@@ -40,8 +36,13 @@ debug: false
 
 # Black Market Settings
 black-market:
+  # Set to true to keep black market always open with unlimited stock
+  always-open: false
+  # Time range when black market is open (ignored if always-open is true)
   time-range: "21:00-22:00"
+  # Default stock for items (ignored if always-open is true)
   default-stock: 10
+  # Default stock for mining rigs (ignored if always-open is true)
   default-rig-stock: 3
   items:
     example_diamond:

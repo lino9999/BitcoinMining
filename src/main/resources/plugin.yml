@@ -19,11 +19,6 @@ commands:
     usage: /btctransfer <player> <amount>
     permission: bitcoinmining.transfer
 
-  btcconvert:
-    description: Convert between Bitcoin and server economy
-    usage: /btcconvert <to|from> <amount>
-    permission: bitcoinmining.convert
-
   miner:
     description: Manage mining rigs
     usage: /miner
@@ -52,10 +47,6 @@ permissions:
 
   bitcoinmining.transfer:
     description: Permission to transfer Bitcoin to others
-    default: true
-
-  bitcoinmining.convert:
-    description: Permission to convert between Bitcoin and server currency
     default: true
 
   bitcoinmining.miner:
@@ -96,7 +87,6 @@ permissions:
     children:
       bitcoinmining.use: true
       bitcoinmining.transfer: true
-      bitcoinmining.convert: true
       bitcoinmining.miner: true
       bitcoinmining.leaderboard: true
       bitcoinmining.place: true

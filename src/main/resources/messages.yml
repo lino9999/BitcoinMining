@@ -36,8 +36,6 @@ bitcoin-received: "You received &e%amount% BTC&7 from %player%!"
 bitcoin-sent: "You sent &e%amount% BTC&7 to %player%! (Fee: %fee% BTC)"
 transfer-success: "Transfer successful!"
 transfer-failed: "Transfer failed! Check your balance."
-convert-to-money: "Converted &e%btc% BTC&7 to &a$%money%"
-convert-from-money: "Converted &a$%money%&7 to &e%btc% BTC"
 
 # Black Market Messages
 black-market-open: "&4&l⚔ BLACK MARKET IS NOW OPEN! ⚔&r&7 Special items available for Bitcoin!"
@@ -69,7 +67,6 @@ gui-overclock-min: "Overclock is already at minimum!"
 # Command Messages
 usage-bitcoin: "Usage: /bitcoin [balance|price|help|reload]"
 usage-transfer: "Usage: /btctransfer <player> <amount>"
-usage-convert: "Usage: /btcconvert <to|from> <amount>"
 usage-miner: "Usage: /miner [info|list]"
 usage-getrig: "Usage: /getrig <get|give>"
 usage-getrig-get: "Usage: /getrig get <level>"

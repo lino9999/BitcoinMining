@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.*;
 
 public class BlackMarketManager {
@@ -17,6 +17,7 @@ public class BlackMarketManager {
     private final Map<String, BlackMarketItem> items;
     private final Map<String, Integer> stock;
     private boolean isOpen;
+    private boolean alwaysOpen;
     private LocalTime openTime;
     private LocalTime closeTime;
 
@@ -25,16 +26,22 @@ public class BlackMarketManager {
         this.items = new HashMap<>();
         this.stock = new HashMap<>();
         this.isOpen = false;
+        this.alwaysOpen = false;
         loadConfig();
     }
 
     public void loadConfig() {
         items.clear();
 
-        String timeRange = plugin.getConfig().getString("black-market.time-range", "21:00-22:00");
-        String[] times = timeRange.split("-");
-        openTime = LocalTime.parse(times[0]);
-        closeTime = LocalTime.parse(times[1]);
+        // Check if black market is always open
+        alwaysOpen = plugin.getConfig().getBoolean("black-market.always-open", false);
+
+        if (!alwaysOpen) {
+            String timeRange = plugin.getConfig().getString("black-market.time-range", "21:00-22:00");
+            String[] times = timeRange.split("-");
+            openTime = LocalTime.parse(times[0]);
+            closeTime = LocalTime.parse(times[1]);
+        }
 
         ConfigurationSection itemsSection = plugin.getConfig().getConfigurationSection("black-market.items");
         if (itemsSection != null) {
@@ -122,10 +129,13 @@ public class BlackMarketManager {
     }
 
     public boolean isOpen() {
+        if (alwaysOpen) return true;
         return isOpen;
     }
 
     public boolean shouldBeOpen() {
+        if (alwaysOpen) return true;
+
         LocalTime now = LocalTime.now();
         if (openTime.isBefore(closeTime)) {
             return now.isAfter(openTime) && now.isBefore(closeTime);
@@ -135,17 +145,22 @@ public class BlackMarketManager {
     }
 
     public String getTimeUntilOpen() {
-        LocalTime now = LocalTime.now();
-        long minutesUntilOpen;
+        if (alwaysOpen) return "Always Open";
 
-        if (now.isBefore(openTime)) {
-            minutesUntilOpen = ChronoUnit.MINUTES.between(now, openTime);
+        LocalTime now = LocalTime.now();
+        Duration duration;
+
+        if (openTime.isAfter(now)) {
+            // Black market opens later today
+            duration = Duration.between(now, openTime);
         } else {
-            minutesUntilOpen = ChronoUnit.MINUTES.between(now, openTime.plusHours(24));
+            // Black market opens tomorrow
+            duration = Duration.between(now, openTime).plusHours(24);
         }
 
-        long hours = minutesUntilOpen / 60;
-        long minutes = minutesUntilOpen % 60;
+        long totalMinutes = duration.toMinutes();
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
 
         if (hours > 0) {
             return String.format("%dh %dm", hours, minutes);
@@ -155,16 +170,21 @@ public class BlackMarketManager {
     }
 
     public boolean purchaseItem(String key, UUID playerUuid) {
-        if (!isOpen) return false;
+        if (!isOpen() && !alwaysOpen) return false;
 
         BlackMarketItem item = items.get(key);
         if (item == null) return false;
 
-        int currentStock = stock.getOrDefault(key, 0);
-        if (currentStock <= 0) return false;
+        // If always open, stock is unlimited
+        if (!alwaysOpen) {
+            int currentStock = stock.getOrDefault(key, 0);
+            if (currentStock <= 0) return false;
+        }
 
         if (plugin.getBitcoinManager().removeBitcoin(playerUuid, item.getPrice())) {
-            stock.put(key, currentStock - 1);
+            if (!alwaysOpen) {
+                stock.put(key, stock.getOrDefault(key, 0) - 1);
+            }
             return true;
         }
 
@@ -176,6 +196,7 @@ public class BlackMarketManager {
     }
 
     public int getStock(String key) {
+        if (alwaysOpen) return -1; // Unlimited stock
         return stock.getOrDefault(key, 0);
     }
 

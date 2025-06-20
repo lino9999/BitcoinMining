@@ -109,11 +109,11 @@ public class BitcoinCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e/bitcoin price §7- Check current Bitcoin price");
         sender.sendMessage("§e/bitcoin reload §7- Reload configuration");
         sender.sendMessage("§e/btctransfer <player> <amount> §7- Transfer Bitcoin");
-        sender.sendMessage("§e/btcconvert <to|from> <amount> §7- Convert currency");
         sender.sendMessage("§e/miner §7- Mining rig information");
         sender.sendMessage("§e/btctop §7- Top miners leaderboard");
         sender.sendMessage("§e/getrig <get|give> §7- Get or give mining rigs");
         sender.sendMessage("§e/blackmarket §7- Black market commands");
+        sender.sendMessage("§e/blackmarket additem <price> §7- Add held item to market");
         sender.sendMessage("§6§l===========================");
     }
 

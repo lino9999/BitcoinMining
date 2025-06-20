@@ -58,28 +58,6 @@ public class BitcoinManager {
         return false;
     }
 
-    public double convertToServerMoney(UUID playerUuid, double bitcoinAmount) {
-        double rate = plugin.getPriceManager().getCurrentPrice();
-        double serverAmount = bitcoinAmount * rate;
-
-        if (removeBitcoin(playerUuid, bitcoinAmount)) {
-            plugin.getEconomy().depositPlayer(plugin.getServer().getOfflinePlayer(playerUuid), serverAmount);
-            return serverAmount;
-        }
-        return 0;
-    }
-
-    public double convertFromServerMoney(Player player, double serverAmount) {
-        double rate = plugin.getPriceManager().getCurrentPrice();
-        double bitcoinAmount = serverAmount / rate;
-
-        if (plugin.getEconomy().withdrawPlayer(player, serverAmount).transactionSuccess()) {
-            addBitcoin(player.getUniqueId(), bitcoinAmount);
-            return bitcoinAmount;
-        }
-        return 0;
-    }
-
     public void addDailyProfit(UUID playerUuid, double amount) {
         dailyProfits.put(playerUuid, dailyProfits.getOrDefault(playerUuid, 0.0) + amount);
     }
