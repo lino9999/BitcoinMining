@@ -2,10 +2,12 @@ package com.Lino.bitcoinMining.utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,6 +82,13 @@ public class ItemBuilder {
     public ItemBuilder setUnbreakable(boolean unbreakable) {
         if (meta != null) {
             meta.setUnbreakable(unbreakable);
+        }
+        return this;
+    }
+
+    public <T, Z> ItemBuilder setPersistentData(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(key, type, value);
         }
         return this;
     }

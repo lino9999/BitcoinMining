@@ -46,6 +46,9 @@ public class BitcoinCommand implements CommandExecutor, TabCompleter {
             case "help":
                 handleHelp(sender);
                 break;
+            case "reload":
+                handleReload(sender);
+                break;
             default:
                 plugin.getMessageManager().sendMessage(sender, "usage-bitcoin");
         }
@@ -104,6 +107,7 @@ public class BitcoinCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e/bitcoin §7- Check your Bitcoin balance");
         sender.sendMessage("§e/bitcoin balance [player] §7- Check balance");
         sender.sendMessage("§e/bitcoin price §7- Check current Bitcoin price");
+        sender.sendMessage("§e/bitcoin reload §7- Reload configuration");
         sender.sendMessage("§e/btctransfer <player> <amount> §7- Transfer Bitcoin");
         sender.sendMessage("§e/btcconvert <to|from> <amount> §7- Convert currency");
         sender.sendMessage("§e/miner §7- Mining rig information");
@@ -111,10 +115,24 @@ public class BitcoinCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§6§l===========================");
     }
 
+    private void handleReload(CommandSender sender) {
+        if (!sender.hasPermission("bitcoinmining.admin")) {
+            plugin.getMessageManager().sendMessage(sender, "no-permission");
+            return;
+        }
+
+        plugin.reload();
+        plugin.getMessageManager().sendMessage(sender, "config-reloaded");
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return filterCompletions(Arrays.asList("balance", "price", "help"), args[0]);
+            List<String> completions = new ArrayList<>(Arrays.asList("balance", "price", "help"));
+            if (sender.hasPermission("bitcoinmining.admin")) {
+                completions.add("reload");
+            }
+            return filterCompletions(completions, args[0]);
         } else if (args.length == 2 && args[0].equalsIgnoreCase("balance")) {
             if (sender.hasPermission("bitcoinmining.balance.others")) {
                 List<String> players = new ArrayList<>();

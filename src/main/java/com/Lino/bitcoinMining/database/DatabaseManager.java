@@ -44,7 +44,7 @@ public class DatabaseManager {
                             "x INTEGER," +
                             "y INTEGER," +
                             "z INTEGER," +
-                            "type VARCHAR(20)," +
+                            "level INTEGER DEFAULT 1," +
                             "fuel INTEGER DEFAULT 0," +
                             "active BOOLEAN DEFAULT FALSE," +
                             "overclock DOUBLE DEFAULT 1.0," +
@@ -62,8 +62,51 @@ public class DatabaseManager {
                             "timestamp BIGINT" +
                             ")"
             );
+
+            migrateTypeToLevel();
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to create tables: " + e.getMessage());
+        }
+    }
+
+    private void migrateTypeToLevel() {
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery("PRAGMA table_info(mining_rigs)");
+            boolean hasTypeColumn = false;
+            boolean hasLevelColumn = false;
+
+            while (rs.next()) {
+                String columnName = rs.getString("name");
+                if (columnName.equals("type")) hasTypeColumn = true;
+                if (columnName.equals("level")) hasLevelColumn = true;
+            }
+
+            if (hasTypeColumn && !hasLevelColumn) {
+                stmt.executeUpdate("ALTER TABLE mining_rigs ADD COLUMN level INTEGER DEFAULT 1");
+
+                ResultSet rigData = stmt.executeQuery("SELECT id, type FROM mining_rigs");
+                while (rigData.next()) {
+                    String id = rigData.getString("id");
+                    String type = rigData.getString("type");
+                    int level = 1;
+
+                    if (type != null && type.startsWith("LEVEL_")) {
+                        try {
+                            level = Integer.parseInt(type.replace("LEVEL_", ""));
+                        } catch (NumberFormatException e) {
+                            level = 1;
+                        }
+                    }
+
+                    PreparedStatement ps = connection.prepareStatement("UPDATE mining_rigs SET level = ? WHERE id = ?");
+                    ps.setInt(1, level);
+                    ps.setString(2, id);
+                    ps.executeUpdate();
+                    ps.close();
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().info("Migration check completed");
         }
     }
 
@@ -95,7 +138,7 @@ public class DatabaseManager {
 
     public void saveMiningRig(MiningRig rig) {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT OR REPLACE INTO mining_rigs (id, owner_uuid, world, x, y, z, type, fuel, active, overclock, total_mined) " +
+                "INSERT OR REPLACE INTO mining_rigs (id, owner_uuid, world, x, y, z, level, fuel, active, overclock, total_mined) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         )) {
             ps.setString(1, rig.getId().toString());
@@ -104,7 +147,7 @@ public class DatabaseManager {
             ps.setInt(4, rig.getLocation().getBlockX());
             ps.setInt(5, rig.getLocation().getBlockY());
             ps.setInt(6, rig.getLocation().getBlockZ());
-            ps.setString(7, rig.getType().name());
+            ps.setInt(7, rig.getLevel());
             ps.setInt(8, rig.getFuel());
             ps.setBoolean(9, rig.isActive());
             ps.setDouble(10, rig.getOverclock());
@@ -129,9 +172,22 @@ public class DatabaseManager {
                         rs.getInt("y"),
                         rs.getInt("z")
                 );
-                MiningRig.RigType type = MiningRig.RigType.valueOf(rs.getString("type"));
 
-                MiningRig rig = new MiningRig(id, ownerId, location, type);
+                int level = 1;
+                try {
+                    level = rs.getInt("level");
+                } catch (SQLException e) {
+                    String type = rs.getString("type");
+                    if (type != null && type.startsWith("LEVEL_")) {
+                        try {
+                            level = Integer.parseInt(type.replace("LEVEL_", ""));
+                        } catch (NumberFormatException ex) {
+                            level = 1;
+                        }
+                    }
+                }
+
+                MiningRig rig = new MiningRig(id, ownerId, location, level);
                 rig.addFuel(rs.getInt("fuel"));
                 rig.setActive(rs.getBoolean("active"));
                 rig.setOverclock(rs.getDouble("overclock"));

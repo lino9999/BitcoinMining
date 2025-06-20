@@ -57,13 +57,14 @@ public class MinerCommand implements CommandExecutor, TabCompleter {
         int number = 1;
         for (MiningRig rig : rigs) {
             String status = getStatusString(rig);
+            String rigName = "Level " + rig.getLevel();
 
             String message = plugin.getMessageManager().getMessage("miner-info-entry",
                     "%number%", String.valueOf(number),
-                    "%type%", rig.getType().getName(),
+                    "%type%", rigName,
                     "%status%", status,
                     "%fuel%", String.valueOf(rig.getFuel()),
-                    "%max_fuel%", String.valueOf(rig.getType().getFuelCapacity()),
+                    "%max_fuel%", String.valueOf(rig.getFuelCapacity()),
                     "%hashrate%", df.format(rig.getEffectiveHashRate()),
                     "%world%", rig.getLocation().getWorld().getName(),
                     "%x%", String.valueOf(rig.getLocation().getBlockX()),
