@@ -62,51 +62,8 @@ public class DatabaseManager {
                             "timestamp BIGINT" +
                             ")"
             );
-
-            migrateTypeToLevel();
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to create tables: " + e.getMessage());
-        }
-    }
-
-    private void migrateTypeToLevel() {
-        try (Statement stmt = connection.createStatement()) {
-            ResultSet rs = stmt.executeQuery("PRAGMA table_info(mining_rigs)");
-            boolean hasTypeColumn = false;
-            boolean hasLevelColumn = false;
-
-            while (rs.next()) {
-                String columnName = rs.getString("name");
-                if (columnName.equals("type")) hasTypeColumn = true;
-                if (columnName.equals("level")) hasLevelColumn = true;
-            }
-
-            if (hasTypeColumn && !hasLevelColumn) {
-                stmt.executeUpdate("ALTER TABLE mining_rigs ADD COLUMN level INTEGER DEFAULT 1");
-
-                ResultSet rigData = stmt.executeQuery("SELECT id, type FROM mining_rigs");
-                while (rigData.next()) {
-                    String id = rigData.getString("id");
-                    String type = rigData.getString("type");
-                    int level = 1;
-
-                    if (type != null && type.startsWith("LEVEL_")) {
-                        try {
-                            level = Integer.parseInt(type.replace("LEVEL_", ""));
-                        } catch (NumberFormatException e) {
-                            level = 1;
-                        }
-                    }
-
-                    PreparedStatement ps = connection.prepareStatement("UPDATE mining_rigs SET level = ? WHERE id = ?");
-                    ps.setInt(1, level);
-                    ps.setString(2, id);
-                    ps.executeUpdate();
-                    ps.close();
-                }
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().info("Migration check completed");
         }
     }
 
@@ -173,19 +130,7 @@ public class DatabaseManager {
                         rs.getInt("z")
                 );
 
-                int level = 1;
-                try {
-                    level = rs.getInt("level");
-                } catch (SQLException e) {
-                    String type = rs.getString("type");
-                    if (type != null && type.startsWith("LEVEL_")) {
-                        try {
-                            level = Integer.parseInt(type.replace("LEVEL_", ""));
-                        } catch (NumberFormatException ex) {
-                            level = 1;
-                        }
-                    }
-                }
+                int level = rs.getInt("level");
 
                 MiningRig rig = new MiningRig(id, ownerId, location, level);
                 rig.addFuel(rs.getInt("fuel"));

@@ -43,7 +43,7 @@ public class PlayerInteractListener implements Listener {
 
         if (itemInHand.getType() == Material.COAL || itemInHand.getType() == Material.COAL_BLOCK) {
             int fuelToAdd = itemInHand.getType() == Material.COAL ? itemInHand.getAmount() : itemInHand.getAmount() * 9;
-            int maxFuel = rig.getType().getFuelCapacity() - rig.getFuel();
+            int maxFuel = rig.getFuelCapacity() - rig.getFuel();
             int actualFuelAdded = Math.min(fuelToAdd, maxFuel);
 
             if (actualFuelAdded > 0) {

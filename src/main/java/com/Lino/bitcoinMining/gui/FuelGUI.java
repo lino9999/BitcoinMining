@@ -48,14 +48,14 @@ public class FuelGUI {
     }
 
     private ItemStack createFuelInfoItem() {
-        int fuelPercentage = (int) ((double) rig.getFuel() / rig.getType().getFuelCapacity() * 100);
+        int fuelPercentage = (int) ((double) rig.getFuel() / rig.getFuelCapacity() * 100);
         String fuelBar = createProgressBar(fuelPercentage, 20);
 
         return new ItemBuilder(Material.COAL)
                 .setName("§c§lCurrent Fuel Status")
                 .setLore(Arrays.asList(
                         "§7",
-                        "§7Fuel: §e" + rig.getFuel() + "/" + rig.getType().getFuelCapacity(),
+                        "§7Fuel: §e" + rig.getFuel() + "/" + rig.getFuelCapacity(),
                         "§7Percentage: §e" + fuelPercentage + "%",
                         "§7",
                         fuelBar,

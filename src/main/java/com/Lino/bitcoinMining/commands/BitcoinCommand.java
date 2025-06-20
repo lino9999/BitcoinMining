@@ -112,6 +112,8 @@ public class BitcoinCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e/btcconvert <to|from> <amount> §7- Convert currency");
         sender.sendMessage("§e/miner §7- Mining rig information");
         sender.sendMessage("§e/btctop §7- Top miners leaderboard");
+        sender.sendMessage("§e/getrig <get|give> §7- Get or give mining rigs");
+        sender.sendMessage("§e/blackmarket §7- Black market commands");
         sender.sendMessage("§6§l===========================");
     }
 

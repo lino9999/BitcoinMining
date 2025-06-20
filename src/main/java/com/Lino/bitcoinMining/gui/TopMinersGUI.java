@@ -61,8 +61,13 @@ public class TopMinersGUI {
                 .setName("§7")
                 .build();
 
-        for (int i = 0; i < 54; i++) {
+        for (int i = 0; i < 9; i++) {
             gui.setItem(i, border);
+            gui.setItem(45 + i, border);
+        }
+        for (int i = 9; i < 36; i += 9) {
+            gui.setItem(i, border);
+            gui.setItem(i + 8, border);
         }
     }
 

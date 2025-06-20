@@ -28,10 +28,6 @@ public class MiningRig {
         this.totalBitcoinMined = 0.0;
     }
 
-    public MiningRig(UUID id, UUID ownerId, Location location, RigType type) {
-        this(id, ownerId, location, type.getLevel());
-    }
-
     public double getBaseHashRate() {
         return BitcoinMining.getInstance().getConfig().getDouble("rig-levels.level-" + level + ".hash-rate", 0.001 * level);
     }
@@ -67,6 +63,9 @@ public class MiningRig {
 
     public void addFuel(int amount) {
         fuel = Math.min(fuel + amount, getFuelCapacity());
+        if (fuel > 0 && !active) {
+            active = true;
+        }
     }
 
     public boolean canUpgrade() {
@@ -86,10 +85,6 @@ public class MiningRig {
         }
     }
 
-    public RigType getType() {
-        return RigType.fromLevel(level);
-    }
-
     public UUID getId() { return id; }
     public UUID getOwnerId() { return ownerId; }
     public Location getLocation() { return location; }
@@ -103,63 +98,4 @@ public class MiningRig {
     public void setLastMiningTime(long time) { this.lastMiningTime = time; }
     public double getTotalBitcoinMined() { return totalBitcoinMined; }
     public void addMinedBitcoin(double amount) { this.totalBitcoinMined += amount; }
-
-    public enum RigType {
-        LEVEL_1("Level 1", 1),
-        LEVEL_2("Level 2", 2),
-        LEVEL_3("Level 3", 3),
-        LEVEL_4("Level 4", 4),
-        LEVEL_5("Level 5", 5),
-        LEVEL_6("Level 6", 6),
-        LEVEL_7("Level 7", 7),
-        LEVEL_8("Level 8", 8),
-        LEVEL_9("Level 9", 9),
-        LEVEL_10("Level 10", 10),
-        LEVEL_11("Level 11", 11),
-        LEVEL_12("Level 12", 12),
-        LEVEL_13("Level 13", 13),
-        LEVEL_14("Level 14", 14),
-        LEVEL_15("Level 15", 15),
-        LEVEL_16("Level 16", 16),
-        LEVEL_17("Level 17", 17),
-        LEVEL_18("Level 18", 18),
-        LEVEL_19("Level 19", 19),
-        LEVEL_20("Level 20 - MAX", 20);
-
-        private final String name;
-        private final int level;
-
-        RigType(String name, int level) {
-            this.name = name;
-            this.level = level;
-        }
-
-        public String getName() { return name; }
-        public int getLevel() { return level; }
-
-        public static RigType fromLevel(int level) {
-            for (RigType type : values()) {
-                if (type.level == level) {
-                    return type;
-                }
-            }
-            return LEVEL_1;
-        }
-
-        public static RigType valueOf(int level) {
-            return fromLevel(level);
-        }
-
-        public double getHashRate() {
-            return BitcoinMining.getInstance().getConfig().getDouble("rig-levels.level-" + level + ".hash-rate", 0.001 * level);
-        }
-
-        public int getFuelCapacity() {
-            return BitcoinMining.getInstance().getConfig().getInt("rig-levels.level-" + level + ".fuel-capacity", 64 + (level * 20));
-        }
-
-        public double getFuelConsumption() {
-            return BitcoinMining.getInstance().getConfig().getDouble("rig-levels.level-" + level + ".fuel-consumption", 1.0 - (level * 0.02));
-        }
-    }
 }
