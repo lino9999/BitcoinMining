@@ -1,52 +1,26 @@
 package com.Lino.bitcoinMining.models;
 
+import com.Lino.bitcoinMining.BitcoinMining;
 import org.bukkit.Location;
 import java.util.UUID;
 
 public class MiningRig {
 
-    public enum RigType {
-        BRONZE("Bronze", 0.001, 64, 1.0, 100),
-        SILVER("Silver", 0.003, 128, 0.8, 500),
-        GOLD("Gold", 0.008, 256, 0.6, 1500),
-        DIAMOND("Diamond", 0.02, 512, 0.4, 5000);
-
-        private final String name;
-        private final double baseHashRate;
-        private final int fuelCapacity;
-        private final double fuelConsumption;
-        private final double upgradeCost;
-
-        RigType(String name, double baseHashRate, int fuelCapacity, double fuelConsumption, double upgradeCost) {
-            this.name = name;
-            this.baseHashRate = baseHashRate;
-            this.fuelCapacity = fuelCapacity;
-            this.fuelConsumption = fuelConsumption;
-            this.upgradeCost = upgradeCost;
-        }
-
-        public String getName() { return name; }
-        public double getBaseHashRate() { return baseHashRate; }
-        public int getFuelCapacity() { return fuelCapacity; }
-        public double getFuelConsumption() { return fuelConsumption; }
-        public double getUpgradeCost() { return upgradeCost; }
-    }
-
     private final UUID id;
     private final UUID ownerId;
     private final Location location;
-    private RigType type;
+    private int level;
     private int fuel;
     private boolean active;
     private double overclock;
     private long lastMiningTime;
     private double totalBitcoinMined;
 
-    public MiningRig(UUID id, UUID ownerId, Location location, RigType type) {
+    public MiningRig(UUID id, UUID ownerId, Location location, int level) {
         this.id = id;
         this.ownerId = ownerId;
         this.location = location;
-        this.type = type;
+        this.level = level;
         this.fuel = 0;
         this.active = false;
         this.overclock = 1.0;
@@ -54,12 +28,29 @@ public class MiningRig {
         this.totalBitcoinMined = 0.0;
     }
 
+    public double getBaseHashRate() {
+        return BitcoinMining.getInstance().getConfig().getDouble("rig-levels.level-" + level + ".hash-rate", 0.001 * level);
+    }
+
+    public int getFuelCapacity() {
+        return BitcoinMining.getInstance().getConfig().getInt("rig-levels.level-" + level + ".fuel-capacity", 64 + (level * 20));
+    }
+
+    public double getFuelConsumption() {
+        return BitcoinMining.getInstance().getConfig().getDouble("rig-levels.level-" + level + ".fuel-consumption", 1.0 - (level * 0.02));
+    }
+
+    public double getUpgradeCost() {
+        if (level >= 20) return -1;
+        return BitcoinMining.getInstance().getConfig().getDouble("rig-levels.level-" + (level + 1) + ".upgrade-cost", 100.0 * (level + 1));
+    }
+
     public double getEffectiveHashRate() {
-        return type.getBaseHashRate() * overclock;
+        return getBaseHashRate() * overclock;
     }
 
     public double getEffectiveFuelConsumption() {
-        return type.getFuelConsumption() * overclock;
+        return getFuelConsumption() * overclock;
     }
 
     public boolean consumeFuel(double amount) {
@@ -71,30 +62,30 @@ public class MiningRig {
     }
 
     public void addFuel(int amount) {
-        fuel = Math.min(fuel + amount, type.getFuelCapacity());
+        fuel = Math.min(fuel + amount, getFuelCapacity());
     }
 
     public boolean canUpgrade() {
-        return type.ordinal() < RigType.values().length - 1;
+        return level < 20;
     }
 
-    public RigType getNextTier() {
+    public int getNextLevel() {
         if (canUpgrade()) {
-            return RigType.values()[type.ordinal() + 1];
+            return level + 1;
         }
-        return null;
+        return -1;
     }
 
     public void upgrade() {
         if (canUpgrade()) {
-            type = getNextTier();
+            level++;
         }
     }
 
     public UUID getId() { return id; }
     public UUID getOwnerId() { return ownerId; }
     public Location getLocation() { return location; }
-    public RigType getType() { return type; }
+    public int getLevel() { return level; }
     public int getFuel() { return fuel; }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }

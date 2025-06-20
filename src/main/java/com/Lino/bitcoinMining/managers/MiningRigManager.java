@@ -29,11 +29,11 @@ public class MiningRigManager {
         }
     }
 
-    public MiningRig createRig(Player player, Block block, MiningRig.RigType type) {
+    public MiningRig createRig(Player player, Block block, int level) {
         Location location = block.getLocation();
         UUID rigId = UUID.randomUUID();
 
-        MiningRig rig = new MiningRig(rigId, player.getUniqueId(), location, type);
+        MiningRig rig = new MiningRig(rigId, player.getUniqueId(), location, level);
 
         rigsByLocation.put(location, rig);
         rigsByPlayer.computeIfAbsent(player.getUniqueId(), k -> new ArrayList<>()).add(rig);
@@ -66,31 +66,7 @@ public class MiningRigManager {
     }
 
     public boolean isValidRigBlock(Block block) {
-        Material type = block.getType();
-        return type == Material.COPPER_BLOCK ||
-                type == Material.IRON_BLOCK ||
-                type == Material.GOLD_BLOCK ||
-                type == Material.DIAMOND_BLOCK;
-    }
-
-    public MiningRig.RigType getRigTypeFromBlock(Block block) {
-        switch (block.getType()) {
-            case COPPER_BLOCK: return MiningRig.RigType.BRONZE;
-            case IRON_BLOCK: return MiningRig.RigType.SILVER;
-            case GOLD_BLOCK: return MiningRig.RigType.GOLD;
-            case DIAMOND_BLOCK: return MiningRig.RigType.DIAMOND;
-            default: return null;
-        }
-    }
-
-    public Material getBlockFromRigType(MiningRig.RigType type) {
-        switch (type) {
-            case BRONZE: return Material.COPPER_BLOCK;
-            case SILVER: return Material.IRON_BLOCK;
-            case GOLD: return Material.GOLD_BLOCK;
-            case DIAMOND: return Material.DIAMOND_BLOCK;
-            default: return Material.STONE;
-        }
+        return block.getType() == Material.OBSERVER;
     }
 
     public void saveRig(MiningRig rig) {

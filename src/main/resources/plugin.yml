@@ -35,6 +35,16 @@ commands:
     aliases: [btcleaderboard]
     permission: bitcoinmining.leaderboard
 
+  getrig:
+    description: Get mining rigs
+    usage: /getrig <get|give>
+    permission: bitcoinmining.getrig
+
+  blackmarket:
+    description: Black market management
+    usage: /blackmarket
+    permission: bitcoinmining.blackmarket
+
 permissions:
   bitcoinmining.use:
     description: Basic permission to use Bitcoin commands
@@ -64,6 +74,18 @@ permissions:
     description: Permission to break mining rigs
     default: true
 
+  bitcoinmining.getrig:
+    description: Permission to get mining rigs
+    default: true
+
+  bitcoinmining.blackmarket:
+    description: Permission to access black market
+    default: true
+
+  bitcoinmining.balance.others:
+    description: Permission to check other players' balances
+    default: op
+
   bitcoinmining.admin:
     description: Admin permission for BitcoinMining plugin
     default: op
@@ -79,4 +101,7 @@ permissions:
       bitcoinmining.leaderboard: true
       bitcoinmining.place: true
       bitcoinmining.break: true
+      bitcoinmining.getrig: true
+      bitcoinmining.blackmarket: true
+      bitcoinmining.balance.others: true
       bitcoinmining.admin: true

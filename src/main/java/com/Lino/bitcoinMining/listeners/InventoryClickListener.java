@@ -1,10 +1,10 @@
 package com.Lino.bitcoinMining.listeners;
 
 import com.Lino.bitcoinMining.BitcoinMining;
-import com.Lino.bitcoinMining.gui.FuelGUI;
-import com.Lino.bitcoinMining.gui.MiningRigGUI;
-import com.Lino.bitcoinMining.gui.PriceChartGUI;
+import com.Lino.bitcoinMining.gui.*;
+import com.Lino.bitcoinMining.managers.BlackMarketManager;
 import com.Lino.bitcoinMining.models.MiningRig;
+import com.Lino.bitcoinMining.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -29,12 +29,16 @@ public class InventoryClickListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
 
-        if (title.startsWith("§6⛏ Mining Rig")) {
+        if (title.startsWith("§6⛏ Mining Rig") || title.contains("Level")) {
             handleMiningRigGUI(event, player, title);
         } else if (title.equals("§c⛽ Fuel Management")) {
             handleFuelGUI(event, player);
         } else if (title.equals("§e📈 Bitcoin Price Chart")) {
             handlePriceChartGUI(event, player);
+        } else if (title.equals("§4§l⚔ Black Market ⚔")) {
+            handleBlackMarketGUI(event, player);
+        } else if (title.equals("§6§l⛏ Top Miners ⛏")) {
+            handleTopMinersGUI(event, player);
         }
     }
 
@@ -45,6 +49,9 @@ public class InventoryClickListener implements Listener {
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
 
         MiningRig rig = findRigFromTitle(title);
+        if (rig == null) {
+            rig = findRigForPlayer(player);
+        }
         if (rig == null) return;
 
         int slot = event.getSlot();
@@ -64,6 +71,12 @@ public class InventoryClickListener implements Listener {
                 break;
             case 33:
                 handlePriceChartClick(player);
+                break;
+            case 38:
+                handleBlackMarketClick(player);
+                break;
+            case 40:
+                handleTopMinersClick(player);
                 break;
             case 49:
                 player.closeInventory();
@@ -126,9 +139,85 @@ public class InventoryClickListener implements Listener {
         }
     }
 
+    private void handleBlackMarketGUI(InventoryClickEvent event, Player player) {
+        event.setCancelled(true);
+
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+
+        int slot = event.getSlot();
+
+        if (slot == 45 || slot == 53) {
+            int currentPage = 0;
+            if (slot == 45) currentPage = Math.max(0, currentPage - 1);
+            else currentPage++;
+            new BlackMarketGUI(plugin).open(player, currentPage);
+            return;
+        }
+
+        if (slot == 49) {
+            MiningRig rig = findRigForPlayer(player);
+            if (rig != null) {
+                new MiningRigGUI(plugin, rig).open(player);
+            } else {
+                player.closeInventory();
+            }
+            return;
+        }
+
+        if (slot >= 10 && slot <= 43) {
+            int index = slot - 10;
+            if ((slot - 8) % 9 < 7) {
+                List<String> keys = new java.util.ArrayList<>(plugin.getBlackMarketManager().getItems().keySet());
+                if (index < keys.size()) {
+                    String itemKey = keys.get(index);
+                    BlackMarketManager.BlackMarketItem item = plugin.getBlackMarketManager().getItems().get(itemKey);
+
+                    if (plugin.getBlackMarketManager().purchaseItem(itemKey, player.getUniqueId())) {
+                        ItemStack purchasedItem = item.getItem();
+
+                        if (itemKey.startsWith("rig_level_")) {
+                            int level = Integer.parseInt(itemKey.replace("rig_level_", ""));
+                            purchasedItem = createRigItem(level);
+                        }
+
+                        player.getInventory().addItem(purchasedItem);
+                        plugin.getMessageManager().sendMessage(player, "black-market-purchase-success",
+                                "%item%", purchasedItem.getType().name(),
+                                "%price%", String.format("%.8f", item.getPrice()));
+
+                        new BlackMarketGUI(plugin).open(player, 0);
+                    } else {
+                        plugin.getMessageManager().sendMessage(player, "black-market-purchase-failed");
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleTopMinersGUI(InventoryClickEvent event, Player player) {
+        event.setCancelled(true);
+
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+
+        int slot = event.getSlot();
+
+        if (slot == 45) {
+            MiningRig rig = findRigForPlayer(player);
+            if (rig != null) {
+                new MiningRigGUI(plugin, rig).open(player);
+            } else {
+                player.closeInventory();
+            }
+        }
+    }
+
     private MiningRig findRigFromTitle(String title) {
         for (MiningRig rig : plugin.getMiningRigManager().getAllRigs()) {
-            if (title.contains(rig.getType().getName())) {
+            String rigName = plugin.getConfig().getString("rig-levels.level-" + rig.getLevel() + ".display-name",
+                    "Mining Rig [Level " + rig.getLevel() + "]");
+            if (title.contains(rigName) || title.contains("Level " + rig.getLevel())) {
                 return rig;
             }
         }
@@ -186,19 +275,14 @@ public class InventoryClickListener implements Listener {
             return;
         }
 
-        MiningRig.RigType nextTier = rig.getNextTier();
-        double cost = nextTier.getUpgradeCost();
+        double cost = rig.getUpgradeCost();
 
         if (plugin.getBitcoinManager().removeBitcoin(player.getUniqueId(), cost)) {
             rig.upgrade();
             plugin.getMiningRigManager().saveRig(rig);
 
-            rig.getLocation().getBlock().setType(
-                    plugin.getMiningRigManager().getBlockFromRigType(rig.getType())
-            );
-
             plugin.getMessageManager().sendMessage(player, "rig-upgraded",
-                    "%tier%", rig.getType().getName());
+                    "%level%", String.valueOf(rig.getLevel()));
 
             new MiningRigGUI(plugin, rig).open(player);
         } else {
@@ -211,15 +295,28 @@ public class InventoryClickListener implements Listener {
         new PriceChartGUI(plugin).open(player);
     }
 
+    private void handleBlackMarketClick(Player player) {
+        if (plugin.getBlackMarketManager().isOpen()) {
+            new BlackMarketGUI(plugin).open(player, 0);
+        } else {
+            plugin.getMessageManager().sendMessage(player, "black-market-closed-try-later",
+                    "%time%", plugin.getBlackMarketManager().getTimeUntilOpen());
+        }
+    }
+
+    private void handleTopMinersClick(Player player) {
+        new TopMinersGUI(plugin).open(player);
+    }
+
     private void addFuelToRig(Player player, MiningRig rig, int amount) {
         ItemStack coalItem = new ItemStack(Material.COAL, amount);
 
         if (!player.getInventory().containsAtLeast(coalItem, amount)) {
-            plugin.getMessageManager().sendMessage(player, "not-enough-bitcoin");
+            plugin.getMessageManager().sendMessage(player, "not-enough-coal");
             return;
         }
 
-        int maxFuel = rig.getType().getFuelCapacity() - rig.getFuel();
+        int maxFuel = rig.getFuelCapacity() - rig.getFuel();
         int actualAdded = Math.min(amount, maxFuel);
 
         if (actualAdded > 0) {
@@ -251,11 +348,11 @@ public class InventoryClickListener implements Listener {
         }
 
         if (totalCoal == 0) {
-            plugin.getMessageManager().sendMessage(player, "not-enough-bitcoin");
+            plugin.getMessageManager().sendMessage(player, "not-enough-coal");
             return;
         }
 
-        int maxFuel = rig.getType().getFuelCapacity() - rig.getFuel();
+        int maxFuel = rig.getFuelCapacity() - rig.getFuel();
         int actualAdded = Math.min(totalCoal, maxFuel);
 
         if (actualAdded > 0) {
@@ -299,5 +396,33 @@ public class InventoryClickListener implements Listener {
     private MiningRig findRigForPlayer(Player player) {
         List<MiningRig> playerRigs = plugin.getMiningRigManager().getPlayerRigs(player.getUniqueId());
         return playerRigs.isEmpty() ? null : playerRigs.get(0);
+    }
+
+    private ItemStack createRigItem(int level) {
+        String displayName = plugin.getConfig().getString("rig-levels.level-" + level + ".display-name",
+                "§6Mining Rig §7[§eLevel " + level + "§7]");
+
+        double hashRate = plugin.getConfig().getDouble("rig-levels.level-" + level + ".hash-rate", 0.001 * level);
+        int fuelCapacity = plugin.getConfig().getInt("rig-levels.level-" + level + ".fuel-capacity", 64 + (level * 20));
+        double fuelConsumption = plugin.getConfig().getDouble("rig-levels.level-" + level + ".fuel-consumption", 1.0 - (level * 0.02));
+
+        org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(plugin, "mining_rig_level");
+
+        ItemStack item = new ItemBuilder(Material.OBSERVER)
+                .setName(displayName)
+                .setLore(java.util.Arrays.asList(
+                        "§7",
+                        "§7Level: §e" + level,
+                        "§7Hash Rate: §e" + String.format("%.6f", hashRate) + " BTC/hour",
+                        "§7Fuel Capacity: §e" + fuelCapacity,
+                        "§7Fuel Efficiency: §e" + String.format("%.2f", (2.0 - fuelConsumption) * 100) + "%",
+                        "§7",
+                        "§e§lRIGHT CLICK§7 to place"
+                ))
+                .setGlowing(true)
+                .setPersistentData(key, org.bukkit.persistence.PersistentDataType.INTEGER, level)
+                .build();
+
+        return item;
     }
 }

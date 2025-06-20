@@ -1,15 +1,11 @@
 package com.Lino.bitcoinMining;
 
 import com.Lino.bitcoinMining.commands.*;
-import com.Lino.bitcoinMining.listeners.BlockBreakListener;
-import com.Lino.bitcoinMining.listeners.BlockPlaceListener;
-import com.Lino.bitcoinMining.listeners.InventoryClickListener;
-import com.Lino.bitcoinMining.listeners.PlayerInteractListener;
-import com.Lino.bitcoinMining.api.PriceManager;
-import com.Lino.bitcoinMining.commands.*;
-import com.Lino.bitcoinMining.database.DatabaseManager;
 import com.Lino.bitcoinMining.listeners.*;
+import com.Lino.bitcoinMining.api.PriceManager;
+import com.Lino.bitcoinMining.database.DatabaseManager;
 import com.Lino.bitcoinMining.managers.*;
+import com.Lino.bitcoinMining.tasks.BlackMarketTask;
 import com.Lino.bitcoinMining.tasks.MiningTask;
 import com.Lino.bitcoinMining.tasks.PriceUpdateTask;
 import com.Lino.bitcoinMining.utils.MessageManager;
@@ -27,6 +23,7 @@ public class BitcoinMining extends JavaPlugin {
     private PriceManager priceManager;
     private LeaderboardManager leaderboardManager;
     private MessageManager messageManager;
+    private BlackMarketManager blackMarketManager;
 
     @Override
     public void onEnable() {
@@ -47,6 +44,7 @@ public class BitcoinMining extends JavaPlugin {
         bitcoinManager = new BitcoinManager(this);
         priceManager = new PriceManager(this);
         leaderboardManager = new LeaderboardManager(this);
+        blackMarketManager = new BlackMarketManager(this);
 
         registerCommands();
         registerListeners();
@@ -82,6 +80,8 @@ public class BitcoinMining extends JavaPlugin {
         getCommand("btctop").setExecutor(new LeaderboardCommand(this));
         getCommand("btctransfer").setExecutor(new TransferCommand(this));
         getCommand("btcconvert").setExecutor(new ConvertCommand(this));
+        getCommand("blackmarket").setExecutor(new BlackMarketCommand(this));
+        getCommand("getrig").setExecutor(new GetRigCommand(this));
     }
 
     private void registerListeners() {
@@ -89,11 +89,19 @@ public class BitcoinMining extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(this), this);
+        getServer().getPluginManager().registerEvents(new ExplosionListener(this), this);
     }
 
     private void startTasks() {
         new MiningTask(this).runTaskTimer(this, 20L, 20L);
         new PriceUpdateTask(this).runTaskTimerAsynchronously(this, 0L, 20L * 60);
+        new BlackMarketTask(this).runTaskTimer(this, 20L, 20L);
+    }
+
+    public void reload() {
+        reloadConfig();
+        messageManager.reload();
+        blackMarketManager.reload();
     }
 
     public static BitcoinMining getInstance() {
@@ -126,5 +134,9 @@ public class BitcoinMining extends JavaPlugin {
 
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public BlackMarketManager getBlackMarketManager() {
+        return blackMarketManager;
     }
 }

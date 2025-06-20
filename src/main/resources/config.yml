@@ -37,3 +37,182 @@ sound-chance: 0.05
 
 # Debug Mode
 debug: false
+
+# Black Market Settings
+black-market:
+  time-range: "21:00-22:00"
+  default-stock: 10
+  default-rig-stock: 3
+  items:
+    example_diamond:
+      material: DIAMOND
+      amount: 10
+      price: 0.5
+      max-stock: 5
+      display-name: "§b§lSpecial Diamonds"
+      lore:
+        - "§7Rare diamonds from the"
+        - "§7depths of the Bitcoin mines!"
+
+# Mining Rig Levels
+rig-levels:
+  level-1:
+    display-name: "§6Mining Rig §7[§eLevel 1§7]"
+    hash-rate: 0.001
+    fuel-capacity: 64
+    fuel-consumption: 1.0
+    cost: 100.0
+    upgrade-cost: 0.01
+    black-market-price: 0.05
+  level-2:
+    display-name: "§6Mining Rig §7[§eLevel 2§7]"
+    hash-rate: 0.0025
+    fuel-capacity: 96
+    fuel-consumption: 0.95
+    cost: 250.0
+    upgrade-cost: 0.025
+    black-market-price: 0.1
+  level-3:
+    display-name: "§6Mining Rig §7[§eLevel 3§7]"
+    hash-rate: 0.004
+    fuel-capacity: 128
+    fuel-consumption: 0.9
+    cost: 500.0
+    upgrade-cost: 0.05
+    black-market-price: 0.2
+  level-4:
+    display-name: "§6Mining Rig §7[§eLevel 4§7]"
+    hash-rate: 0.006
+    fuel-capacity: 160
+    fuel-consumption: 0.85
+    cost: 1000.0
+    upgrade-cost: 0.1
+    black-market-price: 0.35
+  level-5:
+    display-name: "§6Mining Rig §7[§eLevel 5§7]"
+    hash-rate: 0.009
+    fuel-capacity: 192
+    fuel-consumption: 0.8
+    cost: 2000.0
+    upgrade-cost: 0.2
+    black-market-price: 0.5
+  level-6:
+    display-name: "§6Mining Rig §7[§eLevel 6§7]"
+    hash-rate: 0.013
+    fuel-capacity: 224
+    fuel-consumption: 0.75
+    cost: 4000.0
+    upgrade-cost: 0.35
+    black-market-price: 0.75
+  level-7:
+    display-name: "§6Mining Rig §7[§eLevel 7§7]"
+    hash-rate: 0.018
+    fuel-capacity: 256
+    fuel-consumption: 0.7
+    cost: 8000.0
+    upgrade-cost: 0.5
+    black-market-price: 1.0
+  level-8:
+    display-name: "§6Mining Rig §7[§eLevel 8§7]"
+    hash-rate: 0.025
+    fuel-capacity: 288
+    fuel-consumption: 0.65
+    cost: 15000.0
+    upgrade-cost: 0.75
+    black-market-price: 1.5
+  level-9:
+    display-name: "§6Mining Rig §7[§eLevel 9§7]"
+    hash-rate: 0.034
+    fuel-capacity: 320
+    fuel-consumption: 0.6
+    cost: 30000.0
+    upgrade-cost: 1.0
+    black-market-price: 2.0
+  level-10:
+    display-name: "§6Mining Rig §7[§eLevel 10§7]"
+    hash-rate: 0.045
+    fuel-capacity: 352
+    fuel-consumption: 0.55
+    cost: 50000.0
+    upgrade-cost: 1.5
+    black-market-price: 3.0
+  level-11:
+    display-name: "§6Mining Rig §7[§eLevel 11§7]"
+    hash-rate: 0.06
+    fuel-capacity: 384
+    fuel-consumption: 0.5
+    cost: 75000.0
+    upgrade-cost: 2.0
+    black-market-price: 4.0
+  level-12:
+    display-name: "§6Mining Rig §7[§eLevel 12§7]"
+    hash-rate: 0.08
+    fuel-capacity: 416
+    fuel-consumption: 0.45
+    cost: 100000.0
+    upgrade-cost: 3.0
+    black-market-price: 5.5
+  level-13:
+    display-name: "§6Mining Rig §7[§eLevel 13§7]"
+    hash-rate: 0.105
+    fuel-capacity: 448
+    fuel-consumption: 0.4
+    cost: 150000.0
+    upgrade-cost: 4.0
+    black-market-price: 7.0
+  level-14:
+    display-name: "§6Mining Rig §7[§eLevel 14§7]"
+    hash-rate: 0.135
+    fuel-capacity: 480
+    fuel-consumption: 0.35
+    cost: 200000.0
+    upgrade-cost: 5.5
+    black-market-price: 9.0
+  level-15:
+    display-name: "§6Mining Rig §7[§eLevel 15§7]"
+    hash-rate: 0.17
+    fuel-capacity: 512
+    fuel-consumption: 0.3
+    cost: 300000.0
+    upgrade-cost: 7.0
+    black-market-price: 12.0
+  level-16:
+    display-name: "§6Mining Rig §7[§eLevel 16§7]"
+    hash-rate: 0.22
+    fuel-capacity: 576
+    fuel-consumption: 0.28
+    cost: 400000.0
+    upgrade-cost: 9.0
+    black-market-price: 15.0
+  level-17:
+    display-name: "§6Mining Rig §7[§eLevel 17§7]"
+    hash-rate: 0.28
+    fuel-capacity: 640
+    fuel-consumption: 0.26
+    cost: 500000.0
+    upgrade-cost: 12.0
+    black-market-price: 20.0
+  level-18:
+    display-name: "§6Mining Rig §7[§eLevel 18§7]"
+    hash-rate: 0.35
+    fuel-capacity: 704
+    fuel-consumption: 0.24
+    cost: 750000.0
+    upgrade-cost: 15.0
+    black-market-price: 25.0
+  level-19:
+    display-name: "§6Mining Rig §7[§eLevel 19§7]"
+    hash-rate: 0.45
+    fuel-capacity: 768
+    fuel-consumption: 0.22
+    cost: 1000000.0
+    upgrade-cost: 20.0
+    black-market-price: 35.0
+  level-20:
+    display-name: "§6§lMining Rig §7[§e§lLevel 20 - MAX§7]"
+    hash-rate: 0.6
+    fuel-capacity: 1024
+    fuel-consumption: 0.2
+    cost: 2000000.0
+    upgrade-cost: -1
+    black-market-price: 50.0

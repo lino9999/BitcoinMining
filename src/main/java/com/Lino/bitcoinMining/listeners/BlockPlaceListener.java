@@ -2,11 +2,16 @@ package com.Lino.bitcoinMining.listeners;
 
 import com.Lino.bitcoinMining.BitcoinMining;
 import com.Lino.bitcoinMining.models.MiningRig;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 public class BlockPlaceListener implements Listener {
 
@@ -20,12 +25,27 @@ public class BlockPlaceListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
         Player player = event.getPlayer();
+        ItemStack item = event.getItemInHand();
 
-        if (!plugin.getMiningRigManager().isValidRigBlock(block)) {
+        if (block.getType() != Material.OBSERVER) {
             return;
         }
 
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return;
+        }
+
+        NamespacedKey key = new NamespacedKey(plugin, "mining_rig_level");
+        if (!meta.getPersistentDataContainer().has(key, PersistentDataType.INTEGER)) {
+            return;
+        }
+
+        int level = meta.getPersistentDataContainer().get(key, PersistentDataType.INTEGER);
+
         if (!player.hasPermission("bitcoinmining.place")) {
+            event.setCancelled(true);
+            plugin.getMessageManager().sendMessage(player, "no-permission");
             return;
         }
 
@@ -36,9 +56,7 @@ public class BlockPlaceListener implements Listener {
             return;
         }
 
-        MiningRig.RigType type = plugin.getMiningRigManager().getRigTypeFromBlock(block);
-        plugin.getMiningRigManager().createRig(player, block, type);
-
+        plugin.getMiningRigManager().createRig(player, block, level);
         plugin.getMessageManager().sendMessage(player, "rig-placed");
     }
 }

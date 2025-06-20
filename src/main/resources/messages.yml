@@ -9,6 +9,8 @@ player-not-found: "Player %player% not found!"
 invalid-amount: "Invalid amount! Please enter a valid number."
 not-enough-bitcoin: "You don't have enough Bitcoin!"
 not-enough-money: "You don't have enough money!"
+not-enough-coal: "You don't have enough coal!"
+config-reloaded: "Configuration reloaded successfully!"
 
 # Mining Rig Messages
 rig-placed: "Mining rig placed successfully!"
@@ -17,9 +19,15 @@ rig-not-owner: "You don't own this mining rig!"
 rig-limit-reached: "You have reached the maximum number of mining rigs (%limit%)!"
 fuel-added: "Added %amount% fuel to the rig. Total fuel: %total%"
 fuel-tank-full: "The fuel tank is already full!"
-rig-upgraded: "Mining rig upgraded to %tier%!"
+rig-upgraded: "Mining rig upgraded to level %level%!"
 rig-upgrade-max-level: "This rig is already at maximum level!"
 rig-upgrade-not-enough-btc: "You need %cost% BTC to upgrade this rig!"
+invalid-level: "Invalid level! Please enter a number."
+invalid-level-range: "Invalid level! Must be between 1 and 20."
+rig-given: "Gave %amount%x Level %level% mining rig(s) to %player%!"
+rig-received: "You received %amount%x Level %level% mining rig(s)!"
+rig-purchased: "Purchased Level %level% mining rig for %cost%!"
+not-enough-money-rig: "You need %cost% to purchase this mining rig!"
 
 # Bitcoin Messages
 balance-check: "Your Bitcoin balance: &e%balance% BTC"
@@ -30,6 +38,20 @@ transfer-success: "Transfer successful!"
 transfer-failed: "Transfer failed! Check your balance."
 convert-to-money: "Converted &e%btc% BTC&7 to &a$%money%"
 convert-from-money: "Converted &a$%money%&7 to &e%btc% BTC"
+
+# Black Market Messages
+black-market-open: "&4&l⚔ BLACK MARKET IS NOW OPEN! ⚔&r&7 Special items available for Bitcoin!"
+black-market-closed: "&4&l⚔ BLACK MARKET IS NOW CLOSED! ⚔&r&7 Come back tomorrow!"
+black-market-status-open: "The Black Market is currently &a&lOPEN&7!"
+black-market-status-closed: "The Black Market is currently &c&lCLOSED&7! Opens in: &e%time%"
+black-market-no-item-in-hand: "You must hold an item to add it to the Black Market!"
+black-market-item-added: "Added %item% to the Black Market for %price% BTC!"
+black-market-purchase-success: "Successfully purchased %item% for %price% BTC!"
+black-market-purchase-failed: "Purchase failed! Not enough Bitcoin or out of stock."
+black-market-closed-try-later: "The Black Market is closed! Opens in: &e%time%"
+black-market-force-opened: "Black Market forcefully opened!"
+black-market-force-closed: "Black Market forcefully closed!"
+black-market-reloaded: "Black Market configuration reloaded!"
 
 # Leaderboard Messages
 leaderboard-header: "&6&l===== Bitcoin Top Miners ====="
@@ -45,10 +67,15 @@ gui-overclock-max: "Overclock is already at maximum!"
 gui-overclock-min: "Overclock is already at minimum!"
 
 # Command Messages
-usage-bitcoin: "Usage: /bitcoin [balance|send|convert]"
+usage-bitcoin: "Usage: /bitcoin [balance|price|help|reload]"
 usage-transfer: "Usage: /btctransfer <player> <amount>"
 usage-convert: "Usage: /btcconvert <to|from> <amount>"
 usage-miner: "Usage: /miner [info|list]"
+usage-getrig: "Usage: /getrig <get|give>"
+usage-getrig-get: "Usage: /getrig get <level>"
+usage-getrig-give: "Usage: /getrig give <player> <level> [amount]"
+usage-blackmarket: "Usage: /blackmarket [additem|open|close|reload]"
+usage-blackmarket-additem: "Usage: /blackmarket additem <price>"
 
 # Status Messages
 rig-status-active: "&aActive"
@@ -59,7 +86,7 @@ rig-status-no-fuel: "&cNo Fuel"
 miner-info-header: "&6&l===== Your Mining Rigs ====="
 miner-info-entry: |
   &eRig #%number%:
-  &7  Type: &e%type%
+  &7  Level: &e%type%
   &7  Status: %status%
   &7  Fuel: &e%fuel%/%max_fuel%
   &7  Hash Rate: &e%hashrate% BTC/hour
