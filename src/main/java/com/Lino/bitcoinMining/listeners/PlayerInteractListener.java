@@ -25,7 +25,7 @@ public class PlayerInteractListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
         Block block = event.getClickedBlock();
-        if (block == null) return;
+        if (block == null || block.getType() != Material.OBSERVER) return;
 
         MiningRig rig = plugin.getMiningRigManager().getRigAt(block.getLocation());
         if (rig == null) return;
@@ -43,18 +43,26 @@ public class PlayerInteractListener implements Listener {
 
         if (itemInHand.getType() == Material.COAL || itemInHand.getType() == Material.COAL_BLOCK) {
             int fuelToAdd = itemInHand.getType() == Material.COAL ? itemInHand.getAmount() : itemInHand.getAmount() * 9;
-            int maxFuel = rig.getFuelCapacity() - rig.getFuel();
-            int actualFuelAdded = Math.min(fuelToAdd, maxFuel);
+            double currentFuel = rig.getFuel();
+            int maxFuel = rig.getFuelCapacity();
+            int maxCanAdd = maxFuel - (int)currentFuel;
+            int actualFuelAdded = Math.min(fuelToAdd, maxCanAdd);
 
             if (actualFuelAdded > 0) {
                 rig.addFuel(actualFuelAdded);
 
-                int itemsToRemove = itemInHand.getType() == Material.COAL ? actualFuelAdded : (actualFuelAdded + 8) / 9;
+                int itemsToRemove;
+                if (itemInHand.getType() == Material.COAL) {
+                    itemsToRemove = actualFuelAdded;
+                } else {
+                    itemsToRemove = (actualFuelAdded + 8) / 9;
+                }
+
                 itemInHand.setAmount(itemInHand.getAmount() - itemsToRemove);
 
                 plugin.getMessageManager().sendMessage(player, "fuel-added",
                         "%amount%", String.valueOf(actualFuelAdded),
-                        "%total%", String.valueOf(rig.getFuel()));
+                        "%total%", String.valueOf((int)rig.getFuel()));
 
                 plugin.getMiningRigManager().saveRig(rig);
             } else {

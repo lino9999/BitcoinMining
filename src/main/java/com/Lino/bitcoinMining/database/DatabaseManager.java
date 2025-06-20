@@ -45,7 +45,7 @@ public class DatabaseManager {
                             "y INTEGER," +
                             "z INTEGER," +
                             "level INTEGER DEFAULT 1," +
-                            "fuel INTEGER DEFAULT 0," +
+                            "fuel DOUBLE DEFAULT 0.0," +
                             "active BOOLEAN DEFAULT FALSE," +
                             "overclock DOUBLE DEFAULT 1.0," +
                             "total_mined DOUBLE DEFAULT 0.0" +
@@ -67,7 +67,7 @@ public class DatabaseManager {
         }
     }
 
-    public void saveBalance(UUID playerUuid, double balance) {
+    public synchronized void saveBalance(UUID playerUuid, double balance) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT OR REPLACE INTO balances (uuid, balance) VALUES (?, ?)"
         )) {
@@ -93,7 +93,7 @@ public class DatabaseManager {
         }
     }
 
-    public void saveMiningRig(MiningRig rig) {
+    public synchronized void saveMiningRig(MiningRig rig) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT OR REPLACE INTO mining_rigs (id, owner_uuid, world, x, y, z, level, fuel, active, overclock, total_mined) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -105,7 +105,7 @@ public class DatabaseManager {
             ps.setInt(5, rig.getLocation().getBlockY());
             ps.setInt(6, rig.getLocation().getBlockZ());
             ps.setInt(7, rig.getLevel());
-            ps.setInt(8, rig.getFuel());
+            ps.setDouble(8, rig.getFuel());
             ps.setBoolean(9, rig.isActive());
             ps.setDouble(10, rig.getOverclock());
             ps.setDouble(11, rig.getTotalBitcoinMined());
@@ -123,8 +123,15 @@ public class DatabaseManager {
             while (rs.next()) {
                 UUID id = UUID.fromString(rs.getString("id"));
                 UUID ownerId = UUID.fromString(rs.getString("owner_uuid"));
+                String worldName = rs.getString("world");
+
+                if (plugin.getServer().getWorld(worldName) == null) {
+                    plugin.getLogger().warning("World " + worldName + " not found for rig " + id);
+                    continue;
+                }
+
                 Location location = new Location(
-                        plugin.getServer().getWorld(rs.getString("world")),
+                        plugin.getServer().getWorld(worldName),
                         rs.getInt("x"),
                         rs.getInt("y"),
                         rs.getInt("z")
@@ -133,7 +140,7 @@ public class DatabaseManager {
                 int level = rs.getInt("level");
 
                 MiningRig rig = new MiningRig(id, ownerId, location, level);
-                rig.addFuel(rs.getInt("fuel"));
+                rig.addFuel((int)rs.getDouble("fuel"));
                 rig.setActive(rs.getBoolean("active"));
                 rig.setOverclock(rs.getDouble("overclock"));
                 rig.addMinedBitcoin(rs.getDouble("total_mined"));
@@ -146,7 +153,7 @@ public class DatabaseManager {
         return rigs;
     }
 
-    public void deleteMiningRig(UUID rigId) {
+    public synchronized void deleteMiningRig(UUID rigId) {
         try (PreparedStatement ps = connection.prepareStatement("DELETE FROM mining_rigs WHERE id = ?")) {
             ps.setString(1, rigId.toString());
             ps.executeUpdate();
@@ -189,7 +196,7 @@ public class DatabaseManager {
         return topMiners;
     }
 
-    public void updateTotalMined(UUID playerUuid, double amount) {
+    public synchronized void updateTotalMined(UUID playerUuid, double amount) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "UPDATE balances SET total_mined = total_mined + ? WHERE uuid = ?"
         )) {

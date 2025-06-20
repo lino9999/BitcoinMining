@@ -63,7 +63,7 @@ public class MinerCommand implements CommandExecutor, TabCompleter {
                     "%number%", String.valueOf(number),
                     "%type%", rigName,
                     "%status%", status,
-                    "%fuel%", String.valueOf(rig.getFuel()),
+                    "%fuel%", String.valueOf((int)rig.getFuel()),
                     "%max_fuel%", String.valueOf(rig.getFuelCapacity()),
                     "%hashrate%", df.format(rig.getEffectiveHashRate()),
                     "%world%", rig.getLocation().getWorld().getName(),

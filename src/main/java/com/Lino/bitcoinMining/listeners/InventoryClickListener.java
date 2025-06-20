@@ -12,11 +12,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class InventoryClickListener implements Listener {
 
     private final BitcoinMining plugin;
+    private final Map<UUID, MiningRig> playerOpenRigs = new HashMap<>();
 
     public InventoryClickListener(BitcoinMining plugin) {
         this.plugin = plugin;
@@ -48,11 +52,16 @@ public class InventoryClickListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
 
-        MiningRig rig = findRigFromTitle(title);
+        MiningRig rig = playerOpenRigs.get(player.getUniqueId());
         if (rig == null) {
-            rig = findRigForPlayer(player);
+            rig = findRigFromTitle(title);
         }
-        if (rig == null) return;
+        if (rig == null) {
+            player.closeInventory();
+            return;
+        }
+
+        playerOpenRigs.put(player.getUniqueId(), rig);
 
         int slot = event.getSlot();
 
@@ -80,6 +89,7 @@ public class InventoryClickListener implements Listener {
                 break;
             case 49:
                 player.closeInventory();
+                playerOpenRigs.remove(player.getUniqueId());
                 plugin.getMessageManager().sendMessage(player, "gui-close");
                 break;
         }
@@ -93,8 +103,11 @@ public class InventoryClickListener implements Listener {
 
         int slot = event.getSlot();
 
-        MiningRig rig = findRigForPlayer(player);
-        if (rig == null) return;
+        MiningRig rig = playerOpenRigs.get(player.getUniqueId());
+        if (rig == null) {
+            player.closeInventory();
+            return;
+        }
 
         switch (slot) {
             case 20:
@@ -122,7 +135,7 @@ public class InventoryClickListener implements Listener {
 
         switch (slot) {
             case 49:
-                MiningRig rig = findRigForPlayer(player);
+                MiningRig rig = playerOpenRigs.get(player.getUniqueId());
                 if (rig != null) {
                     new MiningRigGUI(plugin, rig).open(player);
                 } else {
@@ -156,7 +169,7 @@ public class InventoryClickListener implements Listener {
         }
 
         if (slot == 49) {
-            MiningRig rig = findRigForPlayer(player);
+            MiningRig rig = playerOpenRigs.get(player.getUniqueId());
             if (rig != null) {
                 new MiningRigGUI(plugin, rig).open(player);
             } else {
@@ -204,7 +217,7 @@ public class InventoryClickListener implements Listener {
         int slot = event.getSlot();
 
         if (slot == 45) {
-            MiningRig rig = findRigForPlayer(player);
+            MiningRig rig = playerOpenRigs.get(player.getUniqueId());
             if (rig != null) {
                 new MiningRigGUI(plugin, rig).open(player);
             } else {
@@ -316,8 +329,10 @@ public class InventoryClickListener implements Listener {
             return;
         }
 
-        int maxFuel = rig.getFuelCapacity() - rig.getFuel();
-        int actualAdded = Math.min(amount, maxFuel);
+        double currentFuel = rig.getFuel();
+        int maxFuel = rig.getFuelCapacity();
+        int maxCanAdd = maxFuel - (int)currentFuel;
+        int actualAdded = Math.min(amount, maxCanAdd);
 
         if (actualAdded > 0) {
             player.getInventory().removeItem(new ItemStack(Material.COAL, actualAdded));
@@ -326,7 +341,7 @@ public class InventoryClickListener implements Listener {
 
             plugin.getMessageManager().sendMessage(player, "fuel-added",
                     "%amount%", String.valueOf(actualAdded),
-                    "%total%", String.valueOf(rig.getFuel()));
+                    "%total%", String.valueOf((int)rig.getFuel()));
 
             new FuelGUI(plugin, rig).open(player);
         } else {
@@ -352,8 +367,10 @@ public class InventoryClickListener implements Listener {
             return;
         }
 
-        int maxFuel = rig.getFuelCapacity() - rig.getFuel();
-        int actualAdded = Math.min(totalCoal, maxFuel);
+        double currentFuel = rig.getFuel();
+        int maxFuel = rig.getFuelCapacity();
+        int maxCanAdd = maxFuel - (int)currentFuel;
+        int actualAdded = Math.min(totalCoal, maxCanAdd);
 
         if (actualAdded > 0) {
             int remainingToAdd = actualAdded;
@@ -385,17 +402,12 @@ public class InventoryClickListener implements Listener {
 
             plugin.getMessageManager().sendMessage(player, "fuel-added",
                     "%amount%", String.valueOf(actualAdded),
-                    "%total%", String.valueOf(rig.getFuel()));
+                    "%total%", String.valueOf((int)rig.getFuel()));
 
             new FuelGUI(plugin, rig).open(player);
         } else {
             plugin.getMessageManager().sendMessage(player, "fuel-tank-full");
         }
-    }
-
-    private MiningRig findRigForPlayer(Player player) {
-        List<MiningRig> playerRigs = plugin.getMiningRigManager().getPlayerRigs(player.getUniqueId());
-        return playerRigs.isEmpty() ? null : playerRigs.get(0);
     }
 
     private ItemStack createRigItem(int level) {
@@ -424,5 +436,9 @@ public class InventoryClickListener implements Listener {
                 .build();
 
         return item;
+    }
+
+    public void setPlayerOpenRig(Player player, MiningRig rig) {
+        playerOpenRigs.put(player.getUniqueId(), rig);
     }
 }

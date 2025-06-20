@@ -1,13 +1,17 @@
 package com.Lino.bitcoinMining.gui;
 
 import com.Lino.bitcoinMining.BitcoinMining;
+import com.Lino.bitcoinMining.listeners.InventoryClickListener;
 import com.Lino.bitcoinMining.models.MiningRig;
 import com.Lino.bitcoinMining.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -24,6 +28,14 @@ public class MiningRigGUI {
     }
 
     public void open(Player player) {
+        for (RegisteredListener registeredListener : HandlerList.getRegisteredListeners(plugin)) {
+            Listener listener = registeredListener.getListener();
+            if (listener instanceof InventoryClickListener) {
+                ((InventoryClickListener) listener).setPlayerOpenRig(player, rig);
+                break;
+            }
+        }
+
         String rigName = plugin.getConfig().getString("rig-levels.level-" + rig.getLevel() + ".display-name",
                 "Mining Rig [Level " + rig.getLevel() + "]");
         Inventory gui = Bukkit.createInventory(null, 54, "§6⛏ " + rigName);
@@ -93,9 +105,9 @@ public class MiningRigGUI {
                 .setName("§c§lFuel Management")
                 .setLore(Arrays.asList(
                         "§7",
-                        "§7Fuel: §e" + rig.getFuel() + "/" + rig.getFuelCapacity(),
+                        "§7Fuel: §e" + (int)rig.getFuel() + "/" + rig.getFuelCapacity(),
                         "§7Percentage: §e" + fuelPercentage + "%",
-                        "§7Consumption: §e" + rig.getEffectiveFuelConsumption() + "/hour",
+                        "§7Consumption: §e" + String.format("%.2f", rig.getEffectiveFuelConsumption()) + "/hour",
                         "§7",
                         "§e§lCLICK§7 to add fuel"
                 ))

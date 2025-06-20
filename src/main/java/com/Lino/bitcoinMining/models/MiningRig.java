@@ -10,7 +10,7 @@ public class MiningRig {
     private final UUID ownerId;
     private final Location location;
     private int level;
-    private int fuel;
+    private double fuel;
     private boolean active;
     private double overclock;
     private long lastMiningTime;
@@ -21,7 +21,7 @@ public class MiningRig {
         this.ownerId = ownerId;
         this.location = location;
         this.level = level;
-        this.fuel = 0;
+        this.fuel = 0.0;
         this.active = false;
         this.overclock = 1.0;
         this.lastMiningTime = System.currentTimeMillis();
@@ -53,19 +53,17 @@ public class MiningRig {
         return getFuelConsumption() * overclock;
     }
 
-    public boolean consumeFuel(double amount) {
+    public synchronized boolean consumeFuel(double amount) {
         if (fuel >= amount) {
-            fuel -= amount;
+            fuel = Math.max(0, fuel - amount);
             return true;
         }
+        fuel = 0;
         return false;
     }
 
-    public void addFuel(int amount) {
+    public synchronized void addFuel(int amount) {
         fuel = Math.min(fuel + amount, getFuelCapacity());
-        if (fuel > 0 && !active) {
-            active = true;
-        }
     }
 
     public boolean canUpgrade() {
@@ -89,9 +87,9 @@ public class MiningRig {
     public UUID getOwnerId() { return ownerId; }
     public Location getLocation() { return location; }
     public int getLevel() { return level; }
-    public int getFuel() { return fuel; }
-    public boolean isActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
+    public synchronized double getFuel() { return fuel; }
+    public synchronized boolean isActive() { return active; }
+    public synchronized void setActive(boolean active) { this.active = active; }
     public double getOverclock() { return overclock; }
     public void setOverclock(double overclock) { this.overclock = Math.max(1.0, Math.min(3.0, overclock)); }
     public long getLastMiningTime() { return lastMiningTime; }

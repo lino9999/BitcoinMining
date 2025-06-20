@@ -3,11 +3,15 @@ package com.Lino.bitcoinMining.gui;
 import com.Lino.bitcoinMining.BitcoinMining;
 import com.Lino.bitcoinMining.models.MiningRig;
 import com.Lino.bitcoinMining.utils.ItemBuilder;
+import com.Lino.bitcoinMining.listeners.InventoryClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredListener;
 import java.util.Arrays;
 
 public class FuelGUI {
@@ -21,6 +25,14 @@ public class FuelGUI {
     }
 
     public void open(Player player) {
+        for (RegisteredListener registeredListener : HandlerList.getRegisteredListeners(plugin)) {
+            Listener listener = registeredListener.getListener();
+            if (listener instanceof InventoryClickListener) {
+                ((InventoryClickListener) listener).setPlayerOpenRig(player, rig);
+                break;
+            }
+        }
+
         Inventory gui = Bukkit.createInventory(null, 45, "§c⛽ Fuel Management");
 
         ItemStack border = new ItemBuilder(Material.RED_STAINED_GLASS_PANE)
@@ -48,19 +60,20 @@ public class FuelGUI {
     }
 
     private ItemStack createFuelInfoItem() {
-        int fuelPercentage = (int) ((double) rig.getFuel() / rig.getFuelCapacity() * 100);
+        int currentFuel = (int)rig.getFuel();
+        int fuelPercentage = (int) ((double) currentFuel / rig.getFuelCapacity() * 100);
         String fuelBar = createProgressBar(fuelPercentage, 20);
 
         return new ItemBuilder(Material.COAL)
                 .setName("§c§lCurrent Fuel Status")
                 .setLore(Arrays.asList(
                         "§7",
-                        "§7Fuel: §e" + rig.getFuel() + "/" + rig.getFuelCapacity(),
+                        "§7Fuel: §e" + currentFuel + "/" + rig.getFuelCapacity(),
                         "§7Percentage: §e" + fuelPercentage + "%",
                         "§7",
                         fuelBar,
                         "§7",
-                        "§7Consumption Rate: §e" + rig.getEffectiveFuelConsumption() + "/hour",
+                        "§7Consumption Rate: §e" + String.format("%.2f", rig.getEffectiveFuelConsumption()) + "/hour",
                         "§7Time Remaining: §e" + formatTimeRemaining()
                 ))
                 .setGlowing(true)

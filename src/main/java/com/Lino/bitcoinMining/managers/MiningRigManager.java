@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MiningRigManager {
 
@@ -16,16 +17,20 @@ public class MiningRigManager {
 
     public MiningRigManager(BitcoinMining plugin) {
         this.plugin = plugin;
-        this.rigsByLocation = new HashMap<>();
-        this.rigsByPlayer = new HashMap<>();
+        this.rigsByLocation = new ConcurrentHashMap<>();
+        this.rigsByPlayer = new ConcurrentHashMap<>();
         loadRigs();
     }
 
     private void loadRigs() {
         List<MiningRig> rigs = plugin.getDatabaseManager().loadAllMiningRigs();
         for (MiningRig rig : rigs) {
-            rigsByLocation.put(rig.getLocation(), rig);
-            rigsByPlayer.computeIfAbsent(rig.getOwnerId(), k -> new ArrayList<>()).add(rig);
+            if (rig.getLocation().getBlock().getType() == Material.OBSERVER) {
+                rigsByLocation.put(rig.getLocation(), rig);
+                rigsByPlayer.computeIfAbsent(rig.getOwnerId(), k -> new ArrayList<>()).add(rig);
+            } else {
+                plugin.getDatabaseManager().deleteMiningRig(rig.getId());
+            }
         }
     }
 
@@ -58,11 +63,11 @@ public class MiningRigManager {
     }
 
     public List<MiningRig> getPlayerRigs(UUID playerUuid) {
-        return rigsByPlayer.getOrDefault(playerUuid, new ArrayList<>());
+        return new ArrayList<>(rigsByPlayer.getOrDefault(playerUuid, new ArrayList<>()));
     }
 
     public Collection<MiningRig> getAllRigs() {
-        return rigsByLocation.values();
+        return new ArrayList<>(rigsByLocation.values());
     }
 
     public boolean isValidRigBlock(Block block) {

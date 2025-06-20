@@ -51,8 +51,9 @@ public class BlockBreakListener implements Listener {
         block.getWorld().dropItemNaturally(block.getLocation(), rigItem);
 
         if (rig.getFuel() > 0) {
-            int coalBlocks = rig.getFuel() / 9;
-            int coal = rig.getFuel() % 9;
+            int totalFuel = (int)rig.getFuel();
+            int coalBlocks = totalFuel / 9;
+            int coal = totalFuel % 9;
 
             if (coalBlocks > 0) {
                 block.getWorld().dropItemNaturally(
