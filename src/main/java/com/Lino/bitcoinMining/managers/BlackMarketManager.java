@@ -33,7 +33,6 @@ public class BlackMarketManager {
     public void loadConfig() {
         items.clear();
 
-        // Check if black market is always open
         alwaysOpen = plugin.getConfig().getBoolean("black-market.always-open", false);
 
         if (!alwaysOpen) {
@@ -64,7 +63,7 @@ public class BlackMarketManager {
         for (int level = 1; level <= 20; level++) {
             String key = "rig_level_" + level;
             if (!items.containsKey(key)) {
-                double price = plugin.getConfig().getDouble("rig-levels.level-" + level + ".black-market-price", 0.1 * level);
+                double priceUSD = plugin.getConfig().getDouble("rig-levels.level-" + level + ".black-market-price-usd", 1000.0 * level);
                 int maxStock = plugin.getConfig().getInt("black-market.default-rig-stock", 3);
 
                 String displayName = plugin.getConfig().getString("rig-levels.level-" + level + ".display-name",
@@ -77,15 +76,15 @@ public class BlackMarketManager {
                     rigItem.setItemMeta(meta);
                 }
 
-                BlackMarketItem item = new BlackMarketItem(rigItem, price, maxStock);
+                BlackMarketItem item = new BlackMarketItem(rigItem, priceUSD, maxStock);
                 items.put(key, item);
             }
         }
     }
 
-    public void addItem(String key, ItemStack item, double price) {
+    public void addItem(String key, ItemStack item, double priceUSD) {
         int maxStock = plugin.getConfig().getInt("black-market.default-stock", 10);
-        BlackMarketItem marketItem = new BlackMarketItem(item, price, maxStock);
+        BlackMarketItem marketItem = new BlackMarketItem(item, priceUSD, maxStock);
         items.put(key, marketItem);
         saveItem(key, marketItem);
     }
@@ -94,7 +93,7 @@ public class BlackMarketManager {
         ConfigurationSection section = plugin.getConfig().createSection("black-market.items." + key);
         section.set("material", item.getItem().getType().name());
         section.set("amount", item.getItem().getAmount());
-        section.set("price", item.getPrice());
+        section.set("price-usd", item.getPriceUSD());
         section.set("max-stock", item.getMaxStock());
 
         ItemMeta meta = item.getItem().getItemMeta();
@@ -151,10 +150,8 @@ public class BlackMarketManager {
         Duration duration;
 
         if (openTime.isAfter(now)) {
-            // Black market opens later today
             duration = Duration.between(now, openTime);
         } else {
-            // Black market opens tomorrow
             duration = Duration.between(now, openTime).plusHours(24);
         }
 
@@ -175,13 +172,15 @@ public class BlackMarketManager {
         BlackMarketItem item = items.get(key);
         if (item == null) return false;
 
-        // If always open, stock is unlimited
         if (!alwaysOpen) {
             int currentStock = stock.getOrDefault(key, 0);
             if (currentStock <= 0) return false;
         }
 
-        if (plugin.getBitcoinManager().removeBitcoin(playerUuid, item.getPrice())) {
+        double btcPrice = plugin.getPriceManager().getCurrentPrice();
+        double costInBTC = item.getPriceUSD() / btcPrice;
+
+        if (plugin.getBitcoinManager().removeBitcoin(playerUuid, costInBTC)) {
             if (!alwaysOpen) {
                 stock.put(key, stock.getOrDefault(key, 0) - 1);
             }
@@ -196,7 +195,7 @@ public class BlackMarketManager {
     }
 
     public int getStock(String key) {
-        if (alwaysOpen) return -1; // Unlimited stock
+        if (alwaysOpen) return -1;
         return stock.getOrDefault(key, 0);
     }
 
@@ -206,24 +205,24 @@ public class BlackMarketManager {
 
     public static class BlackMarketItem {
         private final ItemStack item;
-        private final double price;
+        private final double priceUSD;
         private final int maxStock;
 
-        public BlackMarketItem(ItemStack item, double price, int maxStock) {
+        public BlackMarketItem(ItemStack item, double priceUSD, int maxStock) {
             this.item = item.clone();
-            this.price = price;
+            this.priceUSD = priceUSD;
             this.maxStock = maxStock;
         }
 
         public ItemStack getItem() { return item.clone(); }
-        public double getPrice() { return price; }
+        public double getPriceUSD() { return priceUSD; }
         public int getMaxStock() { return maxStock; }
 
         public static BlackMarketItem fromConfig(ConfigurationSection section) {
             try {
                 Material material = Material.valueOf(section.getString("material", "STONE"));
                 int amount = section.getInt("amount", 1);
-                double price = section.getDouble("price", 1.0);
+                double priceUSD = section.getDouble("price-usd", 100.0);
                 int maxStock = section.getInt("max-stock", 10);
 
                 ItemStack item = new ItemStack(material, amount);
@@ -238,7 +237,7 @@ public class BlackMarketManager {
                     item.setItemMeta(meta);
                 }
 
-                return new BlackMarketItem(item, price, maxStock);
+                return new BlackMarketItem(item, priceUSD, maxStock);
             } catch (Exception e) {
                 return null;
             }

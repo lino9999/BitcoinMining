@@ -17,6 +17,7 @@ public class BlackMarketGUI {
 
     private final BitcoinMining plugin;
     private final DecimalFormat df = new DecimalFormat("#,##0.00000000");
+    private final DecimalFormat moneyFormat = new DecimalFormat("$#,##0.00");
     private int currentPage = 0;
 
     public BlackMarketGUI(BitcoinMining plugin) {
@@ -80,15 +81,19 @@ public class BlackMarketGUI {
         ItemStack baseItem = marketItem.getItem();
         ItemMeta meta = baseItem.getItemMeta();
 
+        double btcPrice = plugin.getPriceManager().getCurrentPrice();
+        double costInBTC = marketItem.getPriceUSD() / btcPrice;
+
         List<String> lore = new ArrayList<>();
         if (meta != null && meta.hasLore()) {
             lore.addAll(meta.getLore());
         }
 
         lore.add("§7");
-        lore.add("§7Price: §e" + df.format(marketItem.getPrice()) + " BTC");
+        lore.add("§7Price: §a" + moneyFormat.format(marketItem.getPriceUSD()));
+        lore.add("§7Cost in BTC: §e" + df.format(costInBTC) + " BTC");
+        lore.add("§7Current BTC Price: §6" + moneyFormat.format(btcPrice));
 
-        // Check if stock is unlimited (-1)
         if (stock == -1) {
             lore.add("§7Stock: §a§lUNLIMITED");
         } else if (stock > 0) {
@@ -99,7 +104,7 @@ public class BlackMarketGUI {
 
         lore.add("§7");
 
-        if (stock != 0) { // Available if stock is not 0 (includes -1 for unlimited)
+        if (stock != 0) {
             lore.add("§e§lCLICK§7 to purchase");
         } else {
             lore.add("§c§lNOT AVAILABLE");

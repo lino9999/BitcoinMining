@@ -197,7 +197,7 @@ public class InventoryClickListener implements Listener {
                         player.getInventory().addItem(purchasedItem);
                         plugin.getMessageManager().sendMessage(player, "black-market-purchase-success",
                                 "%item%", purchasedItem.getType().name(),
-                                "%price%", String.format("%.8f", item.getPrice()));
+                                "%price%", String.format("%.8f", item.getPriceUSD()));
 
                         new BlackMarketGUI(plugin).open(player, 0);
                     } else {
