@@ -42,7 +42,7 @@ public class BlackMarketGUI {
             BlackMarketManager.BlackMarketItem marketItem = items.get(key);
             int stock = plugin.getBlackMarketManager().getStock(key);
 
-            ItemStack displayItem = createMarketItem(marketItem, stock, key);
+            ItemStack displayItem = createMarketItem(marketItem, stock, key, player);
             gui.setItem(slot, displayItem);
 
             slot++;
@@ -77,12 +77,13 @@ public class BlackMarketGUI {
         }
     }
 
-    private ItemStack createMarketItem(BlackMarketManager.BlackMarketItem marketItem, int stock, String key) {
+    private ItemStack createMarketItem(BlackMarketManager.BlackMarketItem marketItem, int stock, String key, Player player) {
         ItemStack baseItem = marketItem.getItem();
         ItemMeta meta = baseItem.getItemMeta();
 
         double btcPrice = plugin.getPriceManager().getCurrentPrice();
         double costInBTC = marketItem.getPriceUSD() / btcPrice;
+        double playerBalance = plugin.getBitcoinManager().getBalance(player.getUniqueId());
 
         List<String> lore = new ArrayList<>();
         if (meta != null && meta.hasLore()) {
@@ -94,6 +95,16 @@ public class BlackMarketGUI {
         lore.add("§7Cost in BTC: §e" + df.format(costInBTC) + " BTC");
         lore.add("§7Current BTC Price: §6" + moneyFormat.format(btcPrice));
 
+        lore.add("§7");
+        lore.add("§7Your Balance: §e" + df.format(playerBalance) + " BTC");
+
+        if (playerBalance >= costInBTC) {
+            lore.add("§a§l✓ You can afford this!");
+        } else {
+            double needed = costInBTC - playerBalance;
+            lore.add("§c§l✗ You need §e" + df.format(needed) + " BTC§c more");
+        }
+
         if (stock == -1) {
             lore.add("§7Stock: §a§lUNLIMITED");
         } else if (stock > 0) {
@@ -104,10 +115,12 @@ public class BlackMarketGUI {
 
         lore.add("§7");
 
-        if (stock != 0) {
+        if (stock != 0 && playerBalance >= costInBTC) {
             lore.add("§e§lCLICK§7 to purchase");
-        } else {
+        } else if (stock == 0) {
             lore.add("§c§lNOT AVAILABLE");
+        } else {
+            lore.add("§c§lINSUFFICIENT FUNDS");
         }
 
         ItemStack displayItem = baseItem.clone();
