@@ -54,7 +54,6 @@ public class MiningRigGUI {
 
         gui.setItem(38, createBlackMarketItem());
         gui.setItem(40, createTopMinersItem());
-        gui.setItem(42, createSettingsItem());
 
         gui.setItem(49, createCloseItem());
 
@@ -241,18 +240,6 @@ public class MiningRigGUI {
                         "§7the best Bitcoin miners!",
                         "§7",
                         "§e§lCLICK§7 to view"
-                ))
-                .build();
-    }
-
-    private ItemStack createSettingsItem() {
-        return new ItemBuilder(Material.COMPARATOR)
-                .setName("§7§lSettings")
-                .setLore(Arrays.asList(
-                        "§7",
-                        "§7Configure your mining rig",
-                        "§7",
-                        "§c§lComing Soon"
                 ))
                 .build();
     }

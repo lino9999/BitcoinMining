@@ -28,6 +28,13 @@ public class MiningRigManager {
             if (rig.getLocation().getBlock().getType() == Material.OBSERVER) {
                 rigsByLocation.put(rig.getLocation(), rig);
                 rigsByPlayer.computeIfAbsent(rig.getOwnerId(), k -> new ArrayList<>()).add(rig);
+
+                // Create hologram for loaded rig
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    if (plugin.getHologramManager() != null) {
+                        plugin.getHologramManager().createHologram(rig);
+                    }
+                }, 20L);
             } else {
                 plugin.getDatabaseManager().deleteMiningRig(rig.getId());
             }
@@ -45,6 +52,9 @@ public class MiningRigManager {
 
         plugin.getDatabaseManager().saveMiningRig(rig);
 
+        // Create hologram for new rig
+        plugin.getHologramManager().createHologram(rig);
+
         return rig;
     }
 
@@ -54,6 +64,9 @@ public class MiningRigManager {
         if (playerRigs != null) {
             playerRigs.remove(rig);
         }
+
+        // Remove hologram
+        plugin.getHologramManager().removeHologram(rig.getId());
 
         plugin.getDatabaseManager().deleteMiningRig(rig.getId());
     }

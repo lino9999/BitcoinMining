@@ -189,11 +189,6 @@ public class InventoryClickListener implements Listener {
                     if (plugin.getBlackMarketManager().purchaseItem(itemKey, player.getUniqueId())) {
                         ItemStack purchasedItem = item.getItem();
 
-                        if (itemKey.startsWith("rig_level_")) {
-                            int level = Integer.parseInt(itemKey.replace("rig_level_", ""));
-                            purchasedItem = createRigItem(level);
-                        }
-
                         player.getInventory().addItem(purchasedItem);
                         plugin.getMessageManager().sendMessage(player, "black-market-purchase-success",
                                 "%item%", purchasedItem.getType().name(),
@@ -408,34 +403,6 @@ public class InventoryClickListener implements Listener {
         } else {
             plugin.getMessageManager().sendMessage(player, "fuel-tank-full");
         }
-    }
-
-    private ItemStack createRigItem(int level) {
-        String displayName = plugin.getConfig().getString("rig-levels.level-" + level + ".display-name",
-                "§6Mining Rig §7[§eLevel " + level + "§7]");
-
-        double hashRate = plugin.getConfig().getDouble("rig-levels.level-" + level + ".hash-rate", 0.001 * level);
-        int fuelCapacity = plugin.getConfig().getInt("rig-levels.level-" + level + ".fuel-capacity", 64 + (level * 20));
-        double fuelConsumption = plugin.getConfig().getDouble("rig-levels.level-" + level + ".fuel-consumption", 1.0 - (level * 0.02));
-
-        org.bukkit.NamespacedKey key = new org.bukkit.NamespacedKey(plugin, "mining_rig_level");
-
-        ItemStack item = new ItemBuilder(Material.OBSERVER)
-                .setName(displayName)
-                .setLore(java.util.Arrays.asList(
-                        "§7",
-                        "§7Level: §e" + level,
-                        "§7Hash Rate: §e" + String.format("%.6f", hashRate) + " BTC/hour",
-                        "§7Fuel Capacity: §e" + fuelCapacity,
-                        "§7Fuel Efficiency: §e" + String.format("%.2f", (2.0 - fuelConsumption) * 100) + "%",
-                        "§7",
-                        "§e§lRIGHT CLICK§7 to place"
-                ))
-                .setGlowing(true)
-                .setPersistentData(key, org.bukkit.persistence.PersistentDataType.INTEGER, level)
-                .build();
-
-        return item;
     }
 
     public void setPlayerOpenRig(Player player, MiningRig rig) {

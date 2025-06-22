@@ -55,31 +55,7 @@ public class BlackMarketManager {
             }
         }
 
-        addDefaultRigs();
         resetStock();
-    }
-
-    private void addDefaultRigs() {
-        for (int level = 1; level <= 20; level++) {
-            String key = "rig_level_" + level;
-            if (!items.containsKey(key)) {
-                double priceUSD = plugin.getConfig().getDouble("rig-levels.level-" + level + ".black-market-price-usd", 1000.0 * level);
-                int maxStock = plugin.getConfig().getInt("black-market.default-rig-stock", 3);
-
-                String displayName = plugin.getConfig().getString("rig-levels.level-" + level + ".display-name",
-                        "§6Mining Rig §7[§eLevel " + level + "§7]");
-
-                ItemStack rigItem = new ItemStack(Material.OBSERVER);
-                ItemMeta meta = rigItem.getItemMeta();
-                if (meta != null) {
-                    meta.setDisplayName(displayName);
-                    rigItem.setItemMeta(meta);
-                }
-
-                BlackMarketItem item = new BlackMarketItem(rigItem, priceUSD, maxStock);
-                items.put(key, item);
-            }
-        }
     }
 
     public void addItem(String key, ItemStack item, double priceUSD) {

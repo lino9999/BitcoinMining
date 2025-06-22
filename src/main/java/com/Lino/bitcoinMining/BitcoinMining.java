@@ -24,6 +24,7 @@ public class BitcoinMining extends JavaPlugin {
     private LeaderboardManager leaderboardManager;
     private MessageManager messageManager;
     private BlackMarketManager blackMarketManager;
+    private HologramManager hologramManager;
 
     @Override
     public void onEnable() {
@@ -45,6 +46,7 @@ public class BitcoinMining extends JavaPlugin {
         priceManager = new PriceManager(this);
         leaderboardManager = new LeaderboardManager(this);
         blackMarketManager = new BlackMarketManager(this);
+        hologramManager = new HologramManager(this);
 
         registerCommands();
         registerListeners();
@@ -55,6 +57,9 @@ public class BitcoinMining extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (hologramManager != null) {
+            hologramManager.removeAllHolograms();
+        }
         if (databaseManager != null) {
             databaseManager.close();
         }
@@ -137,5 +142,9 @@ public class BitcoinMining extends JavaPlugin {
 
     public BlackMarketManager getBlackMarketManager() {
         return blackMarketManager;
+    }
+
+    public HologramManager getHologramManager() {
+        return hologramManager;
     }
 }
