@@ -23,6 +23,10 @@ database-save-interval: 300
 reset-daily-profits: true
 reset-time: "00:00"
 
+# Hologram Settings
+enable-holograms: true
+hologram-update-interval: 20 # In ticks (20 = 1 second)
+
 # Particle Effects
 enable-particles: true
 particle-chance: 0.1
@@ -35,9 +39,8 @@ sound-chance: 0.05
 debug: false
 
 # Black Market Settings
-# Add your custom item with: /blackmarket additem <price>  type cmd with item in hand
 black-market:
-  always-open: false
+  always-open: true
   time-range: "21:00-22:00"
   default-stock: 10
   items:
@@ -51,7 +54,7 @@ black-market:
         - "§7Rare diamonds from the"
         - "§7depths of the Bitcoin mines!"
 
-# Mining Rig Levels
+# Mining Rig Levels (with balanced costs)
 rig-levels:
   level-1:
     display-name: "§6Mining Rig §7[§eLevel 1§7]"
@@ -187,7 +190,7 @@ rig-levels:
     cost: 4000000.0
     upgrade-cost: 22.5
   level-20:
-    display-name: "§6§lMining Rig §7[§e§lLevel 20 - MAXXED§7]"
+    display-name: "§6§lMining Rig §7[§e§lLevel 20 - MAX§7]"
     hash-rate: 0.6
     fuel-capacity: 1024
     fuel-consumption: 0.60

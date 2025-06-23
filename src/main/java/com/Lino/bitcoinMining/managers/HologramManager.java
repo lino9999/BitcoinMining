@@ -4,8 +4,10 @@ import com.Lino.bitcoinMining.BitcoinMining;
 import com.Lino.bitcoinMining.models.MiningRig;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -17,17 +19,31 @@ public class HologramManager {
     private final BitcoinMining plugin;
     private final Map<UUID, Hologram> holograms;
     private final DecimalFormat df = new DecimalFormat("#,##0.00000000");
+    private BukkitTask updateTask;
 
     public HologramManager(BitcoinMining plugin) {
         this.plugin = plugin;
         this.holograms = new HashMap<>();
-        startUpdateTask();
+
+        // Only start update task if holograms are enabled
+        if (plugin.getConfig().getBoolean("enable-holograms", true)) {
+            startUpdateTask();
+        }
     }
 
     public void createHologram(MiningRig rig) {
+        // Check if holograms are enabled
+        if (!plugin.getConfig().getBoolean("enable-holograms", true)) {
+            return;
+        }
+
+        // Remove any existing hologram first to prevent duplicates
         removeHologram(rig.getId());
 
         Location baseLoc = rig.getLocation().clone().add(0.5, 2.5, 0.5);
+
+        // Check if there are already armor stands at this location and remove them
+        cleanupNearbyArmorStands(baseLoc);
 
         ArmorStand line1 = createArmorStand(baseLoc.clone());
         ArmorStand line2 = createArmorStand(baseLoc.clone().subtract(0, 0.25, 0));
@@ -37,6 +53,19 @@ public class HologramManager {
 
         Hologram hologram = new Hologram(line1, line2, line3);
         holograms.put(rig.getId(), hologram);
+    }
+
+    private void cleanupNearbyArmorStands(Location location) {
+        // Remove any armor stands within 3 blocks radius that might be leftover
+        location.getWorld().getNearbyEntities(location, 3, 3, 3).forEach(entity -> {
+            if (entity instanceof ArmorStand) {
+                ArmorStand stand = (ArmorStand) entity;
+                if (stand.isCustomNameVisible() && !stand.isVisible() && stand.isMarker()) {
+                    // This is likely a hologram armor stand
+                    stand.remove();
+                }
+            }
+        });
     }
 
     private ArmorStand createArmorStand(Location location) {
@@ -62,11 +91,24 @@ public class HologramManager {
     }
 
     public void removeAllHolograms() {
+        // Cancel the update task first
+        if (updateTask != null) {
+            updateTask.cancel();
+            updateTask = null;
+        }
+
+        // Remove all holograms
         holograms.values().forEach(Hologram::remove);
         holograms.clear();
     }
 
     private void updateHologramText(MiningRig rig, ArmorStand line1, ArmorStand line2, ArmorStand line3) {
+        if (line1 == null || !line1.isValid() ||
+                line2 == null || !line2.isValid() ||
+                line3 == null || !line3.isValid()) {
+            return;
+        }
+
         String rigName = plugin.getConfig().getString("rig-levels.level-" + rig.getLevel() + ".display-name",
                 "§6Mining Rig §7[§eLevel " + rig.getLevel() + "§7]");
 
@@ -87,19 +129,45 @@ public class HologramManager {
     }
 
     private void startUpdateTask() {
-        new BukkitRunnable() {
+        long updateInterval = plugin.getConfig().getLong("hologram-update-interval", 20L);
+
+        updateTask = new BukkitRunnable() {
             @Override
             public void run() {
+                // Check if holograms are still enabled
+                if (!plugin.getConfig().getBoolean("enable-holograms", true)) {
+                    removeAllHolograms();
+                    this.cancel();
+                    return;
+                }
+
                 for (MiningRig rig : plugin.getMiningRigManager().getAllRigs()) {
                     Hologram hologram = holograms.get(rig.getId());
                     if (hologram != null && hologram.isValid()) {
+                        // Only update text, don't create new holograms
                         updateHologramText(rig, hologram.line1, hologram.line2, hologram.line3);
-                    } else {
-                        createHologram(rig);
                     }
+                    // Don't create new holograms here - they should only be created when rigs are placed/loaded
                 }
             }
-        }.runTaskTimer(plugin, 20L, 20L); // Update every second
+        }.runTaskTimer(plugin, updateInterval, updateInterval);
+    }
+
+    public void reload() {
+        // Remove all holograms first
+        removeAllHolograms();
+
+        // If holograms are enabled, recreate them
+        if (plugin.getConfig().getBoolean("enable-holograms", true)) {
+            startUpdateTask();
+
+            // Recreate holograms for all existing rigs
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                for (MiningRig rig : plugin.getMiningRigManager().getAllRigs()) {
+                    createHologram(rig);
+                }
+            }, 20L);
+        }
     }
 
     private static class Hologram {
