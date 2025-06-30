@@ -1,5 +1,5 @@
 name: BitcoinMining
-version: '1.1'
+version: '1.2'
 main: com.Lino.bitcoinMining.BitcoinMining
 api-version: 1.21
 author: Lino

@@ -4,7 +4,6 @@ import com.Lino.bitcoinMining.BitcoinMining;
 import com.Lino.bitcoinMining.gui.*;
 import com.Lino.bitcoinMining.managers.BlackMarketManager;
 import com.Lino.bitcoinMining.models.MiningRig;
-import com.Lino.bitcoinMining.utils.ItemBuilder;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,9 +145,7 @@ public class InventoryClickListener implements Listener {
             case 53:
                 plugin.getPriceManager().updatePrice();
                 player.closeInventory();
-                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    new PriceChartGUI(plugin).open(player);
-                }, 20L);
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> new PriceChartGUI(plugin).open(player), 1L);
                 break;
         }
     }
@@ -162,6 +160,9 @@ public class InventoryClickListener implements Listener {
 
         if (slot == 45 || slot == 53) {
             int currentPage = 0;
+            if (event.getSlot() == 45) {
+                //get current page from inventory title
+            }
             if (slot == 45) currentPage = Math.max(0, currentPage - 1);
             else currentPage++;
             new BlackMarketGUI(plugin).open(player, currentPage);
@@ -194,7 +195,10 @@ public class InventoryClickListener implements Listener {
                                 "%item%", purchasedItem.getType().name(),
                                 "%price%", String.format("%.8f", item.getPriceUSD()));
 
-                        new BlackMarketGUI(plugin).open(player, 0);
+                        player.closeInventory();
+                        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                            new BlackMarketGUI(plugin).open(player, 0);
+                        }, 1L);
                     } else {
                         plugin.getMessageManager().sendMessage(player, "black-market-purchase-failed");
                     }
@@ -244,7 +248,10 @@ public class InventoryClickListener implements Listener {
         plugin.getMessageManager().sendMessage(player, "gui-toggle-rig",
                 "%status%", status);
 
-        new MiningRigGUI(plugin, rig).open(player);
+        player.closeInventory();
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            new MiningRigGUI(plugin, rig).open(player);
+        }, 1L);
     }
 
     private void handleOverclockClick(Player player, MiningRig rig, ClickType clickType) {
@@ -273,7 +280,10 @@ public class InventoryClickListener implements Listener {
 
         if (newOverclock != currentOverclock) {
             plugin.getMiningRigManager().saveRig(rig);
-            new MiningRigGUI(plugin, rig).open(player);
+            player.closeInventory();
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                new MiningRigGUI(plugin, rig).open(player);
+            }, 1L);
         }
     }
 
@@ -292,7 +302,10 @@ public class InventoryClickListener implements Listener {
             plugin.getMessageManager().sendMessage(player, "rig-upgraded",
                     "%level%", String.valueOf(rig.getLevel()));
 
-            new MiningRigGUI(plugin, rig).open(player);
+            player.closeInventory();
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                new MiningRigGUI(plugin, rig).open(player);
+            }, 1L);
         } else {
             plugin.getMessageManager().sendMessage(player, "rig-upgrade-not-enough-btc",
                     "%cost%", String.format("%.8f", cost));
@@ -326,7 +339,7 @@ public class InventoryClickListener implements Listener {
 
         double currentFuel = rig.getFuel();
         int maxFuel = rig.getFuelCapacity();
-        int maxCanAdd = maxFuel - (int)currentFuel;
+        int maxCanAdd = maxFuel - (int) currentFuel;
         int actualAdded = Math.min(amount, maxCanAdd);
 
         if (actualAdded > 0) {
@@ -336,9 +349,12 @@ public class InventoryClickListener implements Listener {
 
             plugin.getMessageManager().sendMessage(player, "fuel-added",
                     "%amount%", String.valueOf(actualAdded),
-                    "%total%", String.valueOf((int)rig.getFuel()));
+                    "%total%", String.valueOf((int) rig.getFuel()));
 
-            new FuelGUI(plugin, rig).open(player);
+            player.closeInventory();
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                new FuelGUI(plugin, rig).open(player);
+            }, 1L);
         } else {
             plugin.getMessageManager().sendMessage(player, "fuel-tank-full");
         }
@@ -364,7 +380,7 @@ public class InventoryClickListener implements Listener {
 
         double currentFuel = rig.getFuel();
         int maxFuel = rig.getFuelCapacity();
-        int maxCanAdd = maxFuel - (int)currentFuel;
+        int maxCanAdd = maxFuel - (int) currentFuel;
         int actualAdded = Math.min(totalCoal, maxCanAdd);
 
         if (actualAdded > 0) {
@@ -397,9 +413,12 @@ public class InventoryClickListener implements Listener {
 
             plugin.getMessageManager().sendMessage(player, "fuel-added",
                     "%amount%", String.valueOf(actualAdded),
-                    "%total%", String.valueOf((int)rig.getFuel()));
+                    "%total%", String.valueOf((int) rig.getFuel()));
 
-            new FuelGUI(plugin, rig).open(player);
+            player.closeInventory();
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                new FuelGUI(plugin, rig).open(player);
+            }, 1L);
         } else {
             plugin.getMessageManager().sendMessage(player, "fuel-tank-full");
         }
